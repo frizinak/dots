@@ -1,0 +1,9 @@
+[Unit]
+Description=Friz Load Daemon
+#After=syslog.target network.target
+
+[Service]
+ExecStart={bin}/friz-load -iface {iface}
+
+[Install]
+WantedBy=default.target
