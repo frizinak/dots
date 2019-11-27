@@ -2,8 +2,16 @@ BIN = bin
 CONTRIB = contrib
 CONFIG = config
 SERVICES = services
+FONTS = $(CONTRIB)/fonts
 
-ALL = st awesome qutebrowser
+FONTSLIST = $(FONTS)/unifont_upper-12.1.03.ttf \
+	$(FONTS)/unifont_csur-12.1.03.ttf \
+	$(FONTS)/unifont-12.1.03.ttf \
+	$(FONTS)/unifont-12.1.03.bdf.gz \
+	$(FONTS)/bitmap-fonts \
+	$(FONTS)/tamzen
+
+ALL = st awesome qutebrowser fonts
 .PHONY: all
 all: $(ALL)
 
@@ -15,6 +23,9 @@ awesome: wm/awesome/vars.lua wm/awesome/theme.lua $(SERVICES)/friz-load.service
 
 .PHONY: qutebrowser
 qutebrowser: browser/qutebrowser/config.py 
+
+.PHONY: fonts
+fonts: $(FONTSLIST)
 
 .PHONY: help
 help:
@@ -72,6 +83,13 @@ install:
 	@echo "> systemctl --user start friz-load"
 	@echo "> systemctl --user enable friz-load"
 	@echo
+	@echo "################################################################################"
+	@echo "##################################### FONTS ####################################"
+	@echo "################################################################################"
+	@echo "> ln -s '$(PWD)/fonts/friz.conf' '$(HOME)/.config/fontconfig/conf.d/10-friz.conf'"
+	@echo "> ln -s '$(PWD)/contrib/fonts' '$(HOME)/.fonts/friz-contrib-fonts'"
+	@echo "> fc-cache -rf"
+	@echo
 
 $(BIN)/friz-load: utils/load $(shell find utils/load -type f -name '*.go') | $(BIN)
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
@@ -105,7 +123,16 @@ browser/qutebrowser/config.py: browser/qutebrowser/config.def.py themes/active |
 	cp "$<" "$@"
 	$(BIN)/friz-theme -qutebrowser "$@" themes/active
 
-$(BIN) $(CONTRIB):
+$(UNIFONTS): | $(FONTS)
+	curl -Ss "http://unifoundry.com/pub/unifont/unifont-12.1.03/font-builds/$$(basename "$@")" > "$@"
+
+$(FONTS)/bitmap-fonts: | $(FONTS)
+	git clone https://github.com/Tecate/bitmap-fonts.git "$@"
+
+$(FONTS)/tamzen: | $(FONTS)
+	git clone https://github.com/sunaku/tamzen-font "$@"
+
+$(BIN) $(CONTRIB) $(FONTS):
 	@mkdir "$@" 2>/dev/null || true
 
 # BIN = "$(PWD)/bin"
