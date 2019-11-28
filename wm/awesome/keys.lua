@@ -22,6 +22,16 @@ function runPrompt(prompt, prefill, exec, isShell)
     )
 end
 
+function runDefaultPrompt()
+    runPrompt(
+        "> ",
+        "",
+        function(...) awful.spawn(...) end,
+        true
+    )
+end
+
+
 function updateVolume(value)
     return function ()
         awful.spawn.easy_async_with_shell(
@@ -66,7 +76,8 @@ local globalkeys = awful.util.table.join(
     awful.key({ altkey }, "l", updateVolume("+20%")),
     awful.key({ altkey }, "k", updateVolume("+2%")),
     awful.key({ altkey }, "j", updateVolume("-2%")),
-    awful.key({ altkey }, "h", updateVolume("-20%"))
+    awful.key({ altkey }, "h", updateVolume("-20%")),
+    awful.key({ modkey }, "r", runDefaultPrompt)
 )
 
 local clientkeys = awful.util.table.join(
