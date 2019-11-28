@@ -2,6 +2,7 @@ package build
 
 import (
 	"fmt"
+	"github.com/frizinak/linuxtheme/color"
 	"io"
 	"log"
 	"os"
@@ -9,24 +10,24 @@ import (
 )
 
 type Colors struct {
-	main []Color
-	fg   Color
-	bg   Color
+	main []color.Color
+	fg   color.Color
+	bg   color.Color
 }
 
-func NewColors(colors []Color, fg, bg Color) *Colors {
+func NewColors(colors []color.Color, fg, bg color.Color) *Colors {
 	return &Colors{colors, fg, bg}
 }
 
-func (c *Colors) Colors() []Color {
+func (c *Colors) Colors() []color.Color {
 	return c.main
 }
 
-func (c *Colors) FG() Color {
+func (c *Colors) FG() color.Color {
 	return c.fg
 }
 
-func (c *Colors) BG() Color {
+func (c *Colors) BG() color.Color {
 	return c.bg
 }
 
@@ -36,14 +37,9 @@ func (c *Colors) Swap() {
 
 type Font string
 type FontSize int
-type Color uint32
 
 func (f Font) FontConfig(s FontSize) string {
 	return fmt.Sprintf("%s-%d", f, s)
-}
-
-func (c Color) Hex(prefix string) string {
-	return fmt.Sprintf("%s%06x", prefix, c)
 }
 
 type Builder interface {

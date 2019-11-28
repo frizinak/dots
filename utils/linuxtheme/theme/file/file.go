@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/frizinak/linuxtheme/build"
+	"github.com/frizinak/linuxtheme/color"
 )
 
 type File struct {
@@ -28,7 +29,7 @@ func (l *File) Load(file string) (build.Font, build.FontSize, *build.Colors, err
 	}
 	defer f.Close()
 
-	colors := make([]build.Color, 0, 10)
+	colors := make([]color.Color, 0, 10)
 
 	scanner := bufio.NewScanner(f)
 	scanner.Split(bufio.ScanLines)
@@ -43,7 +44,7 @@ func (l *File) Load(file string) (build.Font, build.FontSize, *build.Colors, err
 			if err != nil {
 				return font, size, nil, err
 			}
-			colors = append(colors, build.Color(v))
+			colors = append(colors, color.Color(v))
 			continue
 		}
 

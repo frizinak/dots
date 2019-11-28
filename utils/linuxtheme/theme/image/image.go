@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/frizinak/linuxtheme/build"
+	"github.com/frizinak/linuxtheme/color"
 )
 
 type Image struct {
@@ -20,18 +21,13 @@ func New(amount uint, dark bool, contrast float64) *Image {
 	return &Image{amount, dark, contrast}
 }
 
-func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, error) {
-	var font build.Font
-	var size build.FontSize
-
-	amount := int(l.amount)
-	extra := float64(amount) * l.contrast
+func (l *Image) colors(file string, amount int) ([]color.Color, error) {
 	cmd := exec.Command(
 		"convert",
 		file,
 		"+dither",
 		"-colors",
-		strconv.Itoa(amount+2+int(extra)),
+		strconv.Itoa(amount),
 		"-define",
 		"histogram:unique-colors=true",
 		"-format",
@@ -41,16 +37,16 @@ func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, er
 
 	out, err := cmd.StdoutPipe()
 	if err != nil {
-		return font, size, nil, err
+		return nil, err
 	}
 
 	scanner := bufio.NewScanner(out)
 	scanner.Split(bufio.ScanLines)
 	if err := cmd.Start(); err != nil {
-		return font, size, nil, err
+		return nil, err
 	}
 
-	colors := make([]build.Color, 0, 10)
+	colors := make([]color.Color, 0, amount)
 	for scanner.Scan() {
 		t := strings.Split(strings.TrimSpace(scanner.Text()), " ")
 		ix := -1
@@ -66,17 +62,27 @@ func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, er
 
 		v, err := strconv.ParseUint(t[ix][1:7], 16, 32)
 		if err != nil {
-			return font, size, nil, err
+			return nil, err
 		}
-		colors = append(colors, build.Color(v))
+		colors = append(colors, color.Color(v))
 	}
 	out.Close()
 
 	if err := scanner.Err(); err != nil {
-		return font, size, nil, err
+		return nil, err
 	}
 
-	if err := cmd.Wait(); err != nil {
+	return colors, cmd.Wait()
+}
+
+func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, error) {
+	var font build.Font
+	var size build.FontSize
+
+	amount := int(l.amount)
+	extra := float64(amount) * l.contrast
+	colors, err := l.colors(file, amount+2+int(extra))
+	if err != nil {
 		return font, size, nil, err
 	}
 
@@ -84,26 +90,38 @@ func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, er
 		return font, size, nil, errors.New("less than 2 colors in theme file")
 	}
 
-	fg, bg := colors[len(colors)-1], colors[0]
-	colors = colors[1 : len(colors)-1]
-	shift := len(colors) - amount
-	if shift < 0 {
-		shift = 0
+	hsl := color.NewHSLs(colors)
+	hsl.SortLightness()
+	bg, fg := hsl[0].Modify(1, 1.1), hsl[len(hsl)-1].Modify(1, 0.9)
+	hsl = hsl[1 : len(hsl)-1]
+	hsl.SortHue()
+	if len(hsl) < amount {
+		amount = len(hsl)
 	}
-	shiftL := shift
-	shiftR := 0
+
+	jump := 2 * len(hsl) / amount
+	hsl2 := make(color.HSLs, amount)
+	n := 0
+	hsl.SortHue()
+	for i := 1; i < amount/2; i++ {
+		next := hsl[n : n+jump]
+		next.SortIntensity()
+		hsl2[i] = next[len(next)-1]
+		n += jump
+	}
+
+	hsl2[0] = bg.Modify(1, 1.8)
+	hsl2[len(hsl2)/2-1] = fg
 	if !l.dark {
-		shiftL, shiftR = shiftR, shiftL
+		hsl2[0] = fg.Modify(1, 0.55)
+		hsl2[len(hsl2)/2-1] = bg
 	}
 
-	colors = colors[shiftL : len(colors)-shiftR]
-	offset := len(colors) / 2
-	clrs := make([]build.Color, len(colors))
-	for i := 0; i < len(clrs); i += 2 {
-		clrs[i], clrs[i/2+offset] = colors[i/2], colors[i+1]
-		clrs[i], clrs[i+1] = colors[i/2], colors[i/2+offset]
+	for i := amount / 2; i < amount; i++ {
+		hsl2[i] = hsl2[i-amount/2].Modify(0.9, 0.7)
 	}
 
-	c := build.NewColors(clrs, fg, bg)
+	colors = hsl2.Colors()
+	c := build.NewColors(colors, fg.Color(), bg.Color())
 	return font, size, c, nil
 }

@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/frizinak/linuxtheme/color"
 )
 
 func Simple(
@@ -81,7 +83,7 @@ func Simple(
 		}
 	}
 
-	wcolor := func(s string, c Color) {
+	wcolor := func(s string, c color.Color) {
 		wr(colorPrefix)
 		scratch2.WriteString(s)
 		wr(equalSign, stringDelim)

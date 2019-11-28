@@ -80,16 +80,16 @@ help:
 	@echo '$$ make config'
 	@echo '- prepares ./$(CONFIG) directory, which allows you to make config changes'
 	@echo
-	@echo '$$ make [all]'
+	@echo '$$ make -j [all]'
 	@echo '- builds all targets'
 	@echo
-	@echo '$$ make update'
+	@echo '$$ make -j update'
 	@echo '- update this repo and contribs'
 	@echo
 	@echo '$$ make list'
 	@echo '- print available targets'
 	@echo
-	@echo '$$ make theme'
+	@echo '$$ make -j theme'
 	@echo '- generate themes from themes/wallpapers and activate one'
 	@echo
 	@echo '$$ make reload'
