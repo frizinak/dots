@@ -1,0 +1,4 @@
+"st -c clipmenu -e bash -ic 'pgrep goclip && goclip | fzf | goclip -d'"
+    m:0x41 + c:33
+    Shift+Mod4 + p
+

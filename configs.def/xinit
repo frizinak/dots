@@ -1,0 +1,4 @@
+if ! pgrep xbindkeys > /dev/null; then
+    xbindkeys
+fi
+$HOME/.fehbg

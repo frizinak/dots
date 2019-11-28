@@ -4,3 +4,6 @@
 /wm/awesome/vars.lua
 /services/*.service
 /browser/qutebrowser/config.py
+/misc/.xinitrc
+/misc/.xbindkeysrc
+/configs/
