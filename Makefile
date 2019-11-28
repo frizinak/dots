@@ -134,28 +134,3 @@ $(FONTS)/tamzen: | $(FONTS)
 
 $(BIN) $(CONTRIB) $(FONTS):
 	@mkdir "$@" 2>/dev/null || true
-
-# BIN = "$(PWD)/bin"
-# CONFIG = "$(PWD)/config"
-# SERVICES = "$(PWD)/services"
-# .PHONY: all
-# all: build theme
-# 
-# .PHONY: build
-# build: | $(BIN)
-# 	echo $(PATHS)
-# 	@find ./ -mindepth 2 -type f -name 'Makefile' -not -path './contrib/*' -print0 | \
-# 		while IFS= read -r -d '' file; do \
-# 			BIN="$(BIN)" CONFIG=$(CONFIG) make -C "$$(dirname "$$file")"; \
-# 		done
-# 
-# .PHONY: build
-# theme: build | themes/active
-# 	$(BIN)/friz-theme \
-# 		-awesome wm/awesome/theme.lua \
-# 		-st contrib/st \
-# 		themes/active
-# 
-# themes/active:
-# 	ln -sf one "$@"
-# 
