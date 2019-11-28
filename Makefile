@@ -4,10 +4,12 @@ CONFIG = config
 SERVICES = services
 FONTS = $(CONTRIB)/fonts
 
-FONTSLIST = $(FONTS)/unifont_upper-12.1.03.ttf \
+UNIFONTS = $(FONTS)/unifont_upper-12.1.03.ttf \
 	$(FONTS)/unifont_csur-12.1.03.ttf \
 	$(FONTS)/unifont-12.1.03.ttf \
 	$(FONTS)/unifont-12.1.03.bdf.gz \
+
+FONTSLIST = $(UNIFONTS) \
 	$(FONTS)/bitmap-fonts \
 	$(FONTS)/tamzen
 
@@ -106,7 +108,8 @@ $(CONTRIB)/st: | $(CONTRIB)
 	git clone git://git.suckless.org/st "$@"
 
 wm/awesome/vars.lua: wm/awesome/vars.def.lua $(CONFIG)/soundcard
-	sed "s#soundcard =.*#soundcard = \"$$(cat "$(CONFIG)/soundcard")\"#" "$<" > "$@"
+	sed "s#soundcard =.*#soundcard = \"$$(cat "$(CONFIG)/soundcard")\"#" "$<" > "$@.tmp"
+	mv "$@.tmp" "$@"
 
 wm/awesome/theme.lua: themes/active | $(BIN)/friz-theme
 	$(BIN)/friz-theme -awesome "$@" "$<"
@@ -124,7 +127,8 @@ browser/qutebrowser/config.py: browser/qutebrowser/config.def.py themes/active |
 	$(BIN)/friz-theme -qutebrowser "$@" themes/active
 
 $(UNIFONTS): | $(FONTS)
-	curl -Ss "http://unifoundry.com/pub/unifont/unifont-12.1.03/font-builds/$$(basename "$@")" > "$@"
+	curl -Ss "http://unifoundry.com/pub/unifont/unifont-12.1.03/font-builds/$$(basename "$@")" > "$@.tmp"
+	mv "$@.tmp" "$@"
 
 $(FONTS)/bitmap-fonts: | $(FONTS)
 	git clone https://github.com/Tecate/bitmap-fonts.git "$@"
@@ -134,3 +138,16 @@ $(FONTS)/tamzen: | $(FONTS)
 
 $(BIN) $(CONTRIB) $(FONTS):
 	@mkdir "$@" 2>/dev/null || true
+
+.PHONY: reset
+reset:
+	git clean -dnx | sed 's/^Would/Will/' | grep -v 'skip repository.* $(CONTRIB)'
+	@echo "Will remove $(CONTRIB)"
+	@echo -n "Continue? [y/N] "
+	@read -n 1 delete; \
+		if [ "$$delete" == "y" ]; then \
+			echo \
+			git clean -dxf && \
+			rm -rf "$(CONTRIB)" && \
+			echo cleaned; \
+		fi
