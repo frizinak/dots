@@ -1,6 +1,7 @@
 /contrib/
 /bin/
 /themes/active
+/themes/wallpapers/
 /wm/awesome/vars.lua
 /wm/awesome/theme.lua
 /services/*.service

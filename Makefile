@@ -19,6 +19,9 @@ FONTSLIST = $(UNIFONTS) \
 
 MISC = misc/.xinitrc misc/.xbindkeysrc
 
+WALLPAPERS = $(patsubst themes/wallpapers/%.png,themes/%,$(wildcard themes/wallpapers/*))
+WALLPAPERS += $(patsubst themes/wallpapers/%.jpg,themes/%,$(wildcard themes/wallpapers/*))
+
 CONTRIBS_UPDATE = $(patsubst $(CONTRIB)/%,$(CONTRIB)/%-update,$(wildcard $(CONTRIB)/*))
 CONTRIBS_UPDATE += $(patsubst $(FONTS)/%,$(FONTS)/%-update,$(wildcard $(FONTS)/*))
 BINS = $(wildcard $(BIN)/*)
@@ -49,6 +52,15 @@ misc: $(MISC)
 .NOTPARALLEL: theme
 theme:
 	./themes/pick
+	$(MAKE) all
+
+.PHONY: wallpaper-theme
+wallpaper-theme: $(WALLPAPERS)
+	$(MAKE) theme
+
+themes/%: themes/wallpapers/%.* $(BIN)/friz-theme
+	$(BIN)/friz-theme -export "$<" > "$@.tmp"
+	mv "$@.tmp" "$@"
 
 .PHONY: update _update
 update:
@@ -58,10 +70,16 @@ update:
 _update: $(CONTRIBS_UPDATE)
 	$(MAKE) $(BINS)
 
+.PHONY: reload
+.NOTPARALLEL: reload
+reload:
+	@- pgrep qutebrowser && qutebrowser :config-source
+	@- awesome-client 'awesome.restart()'
+
 .PHONY: help
 help:
 	@echo 'Hello'
-	@echo '- requires golang and systemd'
+	@echo '- requires golang, systemd and imagemagick'
 	@echo '- no functional install target, run "make install" for help installing' 
 	@echo '- wip, too little documentation, not all my dots migrated, ...'
 	@echo
@@ -80,6 +98,13 @@ help:
 	@echo '$$ make theme'
 	@echo '- pick a theme'
 	@echo
+	@echo '$$ make wallpaper-theme'
+	@echo '- generate themes based on wallpapers in themes/wallpapers'
+	@echo
+	@echo '$$ make reload'
+	@echo '- restart awesomewm'
+	@echo '- reload qutebrowser config'
+	@echo
 	@echo '$$ make install'
 	@echo '- removes all files on your hdd'
 	@echo '- nah, just a help text explaining how to install everything'
@@ -88,7 +113,7 @@ help:
 .PHONY: list
 list:
 	@echo $(ALL)
-	@echo update theme
+	@echo update theme wallpaper-theme reload
 
 .PHONY: install
 install:
