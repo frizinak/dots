@@ -1,6 +1,7 @@
 local awful = require("awful")
 local utils = require("friz.utils")
 local wi = require("mywibox")
+local w = require("widgets")
 
 function runPrompt(prompt, prefill, exec, isShell)
     local compl = nil
@@ -19,6 +20,15 @@ function runPrompt(prompt, prefill, exec, isShell)
             history_path = awful.util.getdir("cache") .. "/" .. history
         }
     )
+end
+
+function updateVolume(value)
+    return function ()
+        awful.spawn.easy_async_with_shell(
+            "pactl set-sink-volume '" .. soundcard .. "' " .. value,
+            w.voltextwidget.update
+        )
+    end
 end
 
 local globalkeys = awful.util.table.join(
@@ -53,81 +63,10 @@ local globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift" }, "q", awesome.quit),
 
-    awful.key(
-        { altkey },
-        "l",
-        function()
-            awful.spawn.easy_async_with_shell(
-                "pactl set-sink-volume '" .. soundcard .. "' +20%",
-                function ()
-                    voltextwidget.update()
-                end
-            )
-        end
-    ),
-    awful.key(
-        { altkey },
-        "k",
-        function()
-            awful.spawn.easy_async_with_shell(
-                "pactl set-sink-volume '" .. soundcard .. "' +2%",
-                function ()
-                    voltextwidget.update()
-                end
-            )
-        end
-    ),
-    awful.key(
-        { altkey },
-        "j",
-        function()
-            awful.spawn.easy_async_with_shell(
-                "pactl set-sink-volume '" .. soundcard .. "' -2%",
-                function ()
-                    voltextwidget.update()
-                end
-            )
-        end
-    ),
-    awful.key(
-        { altkey },
-        "h",
-        function()
-            awful.spawn.easy_async_with_shell(
-                "pactl set-sink-volume '" .. soundcard .. "' -20%",
-                function ()
-                    voltextwidget.update()
-                end
-            )
-        end
-    ),
-    awful.key(
-        { altkey },
-        "m",
-        function()
-            awful.spawn.easy_async_with_shell(
-                "pactl set-sink-mute '" .. soundcard .. "' toggle",
-                function ()
-                    voltextwidget.update()
-                end
-            )
-        end
-    ),
-
-    awful.key(
-        { modkey },
-        "r",
-        function()
-            runPrompt(
-                "> ",
-                "",
-                function (...)
-                    local result = awful.spawn(...)
-                end,
-                true
-            )
-        end
-    )
+    awful.key({ altkey }, "l", updateVolume("+20%")),
+    awful.key({ altkey }, "k", updateVolume("+2%")),
+    awful.key({ altkey }, "j", updateVolume("-2%")),
+    awful.key({ altkey }, "h", updateVolume("-20%"))
 )
 
 local clientkeys = awful.util.table.join(
