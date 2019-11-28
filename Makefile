@@ -49,15 +49,15 @@ fonts: $(FONTSLIST) misc/friz-fonts.conf
 misc: $(MISC)
 
 .PHONY: theme
-theme:
-	./themes/pick $(THEME)
+theme: themes
+	./utils/theme-picker $(THEME)
 	$(MAKE) all
 
 .PHONY: wallpaper-theme
 wallpaper-theme: $(WALLPAPERS)
 	$(MAKE) theme
 
-themes/%: themes/wallpapers/%.* $(BIN)/friz-theme
+themes/%: themes/wallpapers/%.* themes $(BIN)/friz-theme
 	$(BIN)/friz-theme -export "$<" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
@@ -213,8 +213,11 @@ $(AWESOME)/theme.lua: themes/active $(AWESOME)/theme.def.lua | $(BIN)/friz-theme
 	cp $(AWESOME)/theme.def.lua "$@"
 	$(BIN)/friz-theme -awesome "$@" "$<"
 
-themes/active:
-	ln -sf one themes/active
+themes/active: | themes
+	ln -sf default themes/active
+
+themes: | themes.def
+	cp -r themes.def "$@"
 
 $(SERVICES)/friz-load.service: $(SERVICES)/friz-load.service.def $(CONFIG)/netiface | $(BIN)/friz-load
 	sed "s#{bin}#$$(realpath "$(BIN)")#" "$<" > "$@.tmp"

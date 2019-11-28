@@ -1,6 +1,6 @@
 #! /bin/bash
 set -e
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../themes"
 
 link() {
     if [ ! -e "$1" ]; then
@@ -8,7 +8,7 @@ link() {
     fi
     ln -sf "$1" active
     touch active
-    if which feh &>/dev/null; then
+    if which feh &>/dev/null && [ -d wallpapers ]; then
         find wallpapers -type f -name "$1.*" -exec feh --bg-fill {} \;
     fi
 }
@@ -20,22 +20,23 @@ fi
 
 choices=()
 for i in ./*; do
-    case "$i" in
-        "./pick" | "./active")
-            continue
-            ;;
-    esac
-
-    if [ ! -f "$i" ]; then
+    if [ "$i" == "./active" ] || [ ! -f "$i" ]; then
         continue
     fi
 
     choices+=("$(basename "$i")")
 done
 
+if [ ${#choices[@]} -eq 1 ]; then
+    link "${choices[0]}"
+    exit 0
+elif [ ${#choices} -eq 0 ]; then
+    exit 0
+fi
+
 activePath="$(realpath active 2>/dev/null)"
 choice=0
-while [ $choice -le 0 ] || [ $choice -ge ${#choices} ]; do
+while [ $choice -le 0 ] || [ $choice -ge ${#choices[@]} ]; do
     n=0
     for i in "${choices[@]}"; do
         n=$(( n + 1 ))
