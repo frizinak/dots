@@ -45,6 +45,11 @@ fonts: $(FONTSLIST) misc/friz-fonts.conf
 .PHONY: misc
 misc: $(MISC)
 
+.PHONY: theme
+.NOTPARALLEL: theme
+theme:
+	./themes/pick
+
 .PHONY: update _update
 update:
 	git fetch && git merge origin/master
@@ -72,6 +77,9 @@ help:
 	@echo '$$ make list'
 	@echo '- print available targets'
 	@echo
+	@echo '$$ make theme'
+	@echo '- pick a theme'
+	@echo
 	@echo '$$ make install'
 	@echo '- removes all files on your hdd'
 	@echo '- nah, just a help text explaining how to install everything'
@@ -80,6 +88,7 @@ help:
 .PHONY: list
 list:
 	@echo $(ALL)
+	@echo update theme
 
 .PHONY: install
 install:
@@ -177,7 +186,8 @@ $(AWESOME)/vars.lua: $(AWESOME)/vars.def.lua $(CONFIG)/soundcard
 	sed "s#soundcard =.*#soundcard = \"$$(cat "$(CONFIG)/soundcard")\"#" "$<" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
-$(AWESOME)/theme.lua: themes/active | $(BIN)/friz-theme
+$(AWESOME)/theme.lua: themes/active $(AWESOME)/theme.def.lua | $(BIN)/friz-theme
+	cp $(AWESOME)/theme.def.lua "$@"
 	$(BIN)/friz-theme -awesome "$@" "$<"
 
 themes/active:
@@ -246,6 +256,7 @@ reset:
 clean:
 	rm -rf $(BIN) $(CONTRIB) $(FONTS)
 	rm -f $(AWESOME)/vars.lua
+	rm -f $(AWESOME)/theme.lua
 	rm -f $(QUTE)/config.py
 	rm -f $(MISC)
 	rm -f $(SERVICES)/friz-load.service

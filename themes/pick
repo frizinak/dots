@@ -1,0 +1,47 @@
+#! /bin/bash
+set -e
+cd "$(dirname "$0")"
+
+link() {
+    if [ ! -e "$1" ]; then
+        return 1
+    fi
+    ln -sf "$1" active
+    touch active
+}
+
+if [ "$1" != "" ]; then
+    link "$1"
+fi
+
+choices=()
+for i in ./*; do
+    case "$i" in
+        "./pick" | "./active")
+            continue
+            ;;
+    esac
+
+    choices+=("$(basename "$i")")
+done
+
+activePath="$(realpath active 2>/dev/null)"
+choice=0
+while [ $choice -le 0 ] || [ $choice -ge ${#choices} ]; do
+    n=0
+    for i in "${choices[@]}"; do
+        n=$(( n + 1 ))
+        active=''
+        if [ "$activePath" == "$(realpath "$i")" ]; then
+            active='*'
+        fi
+
+        printf "%2d) %s%s\n" $n "$(basename "$i")" "$active"
+    done
+    echo -n 'Which theme? '
+    read c
+    choice=$(( c ))
+    echo
+done
+
+link "${choices[$(( choice - 1 ))]}"

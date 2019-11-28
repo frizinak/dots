@@ -2,6 +2,7 @@
 /bin/
 /themes/active
 /wm/awesome/vars.lua
+/wm/awesome/theme.lua
 /services/*.service
 /browser/qutebrowser/config.py
 /misc/.xinitrc
