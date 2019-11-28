@@ -49,9 +49,8 @@ fonts: $(FONTSLIST) misc/friz-fonts.conf
 misc: $(MISC)
 
 .PHONY: theme
-.NOTPARALLEL: theme
 theme:
-	./themes/pick
+	./themes/pick $(THEME)
 	$(MAKE) all
 
 .PHONY: wallpaper-theme
@@ -71,7 +70,6 @@ _update: $(CONTRIBS_UPDATE)
 	$(MAKE) $(BINS)
 
 .PHONY: reload
-.NOTPARALLEL: reload
 reload:
 	@- pgrep qutebrowser && qutebrowser :config-source
 	@- awesome-client 'awesome.restart()'
@@ -285,3 +283,4 @@ clean:
 	rm -f $(QUTE)/config.py
 	rm -f $(MISC)
 	rm -f $(SERVICES)/friz-load.service
+	rm -f misc/friz-fonts.conf
