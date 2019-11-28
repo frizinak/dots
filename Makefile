@@ -49,16 +49,12 @@ fonts: $(FONTSLIST) misc/friz-fonts.conf
 misc: $(MISC)
 
 .PHONY: theme
-theme: themes
+theme: $(WALLPAPERS) | themes
 	./utils/theme-picker $(THEME)
 	$(MAKE) all
 
-.PHONY: wallpaper-theme
-wallpaper-theme: $(WALLPAPERS)
-	$(MAKE) theme
-
-themes/%: themes/wallpapers/%.* themes $(BIN)/friz-theme
-	$(BIN)/friz-theme -export "$<" > "$@.tmp"
+themes/%: themes/wallpapers/%.* $(BIN)/friz-theme $(CONFIG)/wallpaper-contrast | themes
+	$(BIN)/friz-theme -export -contrast $$(cat $(CONFIG)/wallpaper-contrast) "$<" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
 .PHONY: update _update
@@ -94,10 +90,7 @@ help:
 	@echo '- print available targets'
 	@echo
 	@echo '$$ make theme'
-	@echo '- pick a theme'
-	@echo
-	@echo '$$ make wallpaper-theme'
-	@echo '- generate themes based on wallpapers in themes/wallpapers'
+	@echo '- generate themes from themes/wallpapers and activate one'
 	@echo
 	@echo '$$ make reload'
 	@echo '- restart awesomewm'
@@ -111,7 +104,7 @@ help:
 .PHONY: list
 list:
 	@echo $(ALL)
-	@echo update theme wallpaper-theme reload
+	@echo update theme reload
 
 .PHONY: install
 install:
@@ -218,6 +211,7 @@ themes/active: | themes
 
 themes: | themes.def
 	cp -r themes.def "$@"
+	mkdir "$@/wallpapers"
 
 $(SERVICES)/friz-load.service: $(SERVICES)/friz-load.service.def $(CONFIG)/netiface | $(BIN)/friz-load
 	sed "s#{bin}#$$(realpath "$(BIN)")#" "$<" > "$@.tmp"
