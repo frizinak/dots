@@ -19,6 +19,10 @@ FONTSLIST = $(UNIFONTS) \
 
 MISC = misc/.xinitrc misc/.xbindkeysrc
 
+CONTRIBS_UPDATE = $(patsubst $(CONTRIB)/%,$(CONTRIB)/%-update,$(wildcard $(CONTRIB)/*))
+CONTRIBS_UPDATE += $(patsubst $(FONTS)/%,$(FONTS)/%-update,$(wildcard $(FONTS)/*))
+BINS = $(wildcard $(BIN)/*)
+
 ALL = config st awesome qutebrowser fonts $(MISC)
 .PHONY: all
 all: $(ALL)
@@ -41,6 +45,14 @@ fonts: $(FONTSLIST) misc/friz-fonts.conf
 .PHONY: misc
 misc: $(MISC)
 
+.PHONY: update _update
+update:
+	git fetch && git merge origin/master
+	$(MAKE) _update
+
+_update: $(CONTRIBS_UPDATE)
+	$(MAKE) $(BINS)
+
 .PHONY: help
 help:
 	@echo 'Hello'
@@ -53,6 +65,9 @@ help:
 	@echo
 	@echo '$$ make [all]'
 	@echo '- builds all targets'
+	@echo
+	@echo '$$ make update'
+	@echo '- update this repo and contribs'
 	@echo
 	@echo '$$ make list'
 	@echo '- print available targets'
@@ -114,6 +129,13 @@ install:
 	@echo "> you guessed it, ln -s"
 	@echo
 
+%-update:
+	@echo "$*"
+	@if [ -d "$*/.git" ]; then \
+		git -C "$*" fetch; \
+		git -C "$*" reset --hard $$(git -C "$*" rev-parse --abbrev-ref --symbolic-full-name @{u}); \
+	fi
+
 $(CONFIG)/%: | $(CONFIG).def/% $(CONFIG)
 	cp "$(CONFIG).def/$$(basename "$@")" "$@"
 
@@ -123,10 +145,8 @@ $(BIN)/friz-load: utils/load $(shell find utils/load -type f -name '*.go') | $(B
 $(BIN)/friz-theme: utils/linuxtheme $(shell find utils/linuxtheme -type f -name '*.go') | $(BIN)
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./cmd/linuxtheme'
 
-$(BIN)/st: themes/active | $(CONTRIB)/st $(BIN)/friz-theme
-	$(BIN)/friz-theme -st $(CONTRIB)/st -st-noinstall "$<"
-	make -C $(CONTRIB)/st
-	cp $(CONTRIB)/st/st $(BIN)/st
+$(BIN)/st: $(CONTRIB)/st/st
+	cp -f "$<" "$@"
 
 $(BIN)/goclip: $(CONTRIB)/goclip
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
@@ -134,13 +154,19 @@ $(BIN)/goclip: $(CONTRIB)/goclip
 $(BIN)/fzf: $(CONTRIB)/fzf
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
 
+$(CONTRIB)/st/st: themes/active $(CONTRIB)/st $(CONFIG)/st-config.h | $(BIN)/friz-theme
+	cp $(CONFIG)/st-config.h $(CONTRIB)/st/config.h
+	$(BIN)/friz-theme -st $(CONTRIB)/st -st-noinstall "$<"
+	make -C $(CONTRIB)/st
+	touch $(CONTRIB)/st/st
+
 $(CONTRIB)/st: | $(CONTRIB)
 	git clone git://git.suckless.org/st "$@"
 
-$(CONTRIB)/goclip:
+$(CONTRIB)/goclip: | $(CONTRIB)
 	git clone https://github.com/frizinak/goclip "$@"
 
-$(CONTRIB)/fzf:
+$(CONTRIB)/fzf: | $(CONTRIB)
 	git clone https://github.com/junegunn/fzf "$@"
 
 $(QUTE)/config.py: $(QUTE)/config.def.py themes/active | $(BIN)/friz-theme
