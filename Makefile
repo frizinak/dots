@@ -5,6 +5,9 @@ SERVICES = services
 FONTS = $(CONTRIB)/fonts
 CONFIGS = $(patsubst $(CONFIG).def/%,$(CONFIG)/%,$(wildcard $(CONFIG).def/*))
 
+AWESOME=wm/awesome
+QUTE=browser/qutebrowser
+
 UNIFONTS = $(FONTS)/unifont_upper-12.1.03.ttf \
 	$(FONTS)/unifont_csur-12.1.03.ttf \
 	$(FONTS)/unifont-12.1.03.ttf \
@@ -16,7 +19,7 @@ FONTSLIST = $(UNIFONTS) \
 
 MISC = misc/.xinitrc misc/.xbindkeysrc
 
-ALL = config st awesome qutebrowser fonts misc
+ALL = config st awesome qutebrowser fonts $(MISC)
 .PHONY: all
 all: $(ALL)
 
@@ -27,13 +30,13 @@ config:  $(CONFIGS)
 st: $(BIN)/st
 
 .PHONY: awesome
-awesome: wm/awesome/vars.lua wm/awesome/theme.lua $(SERVICES)/friz-load.service
+awesome: $(AWESOME)/vars.lua $(AWESOME)/theme.lua $(SERVICES)/friz-load.service
 
 .PHONY: qutebrowser
-qutebrowser: browser/qutebrowser/config.py 
+qutebrowser: $(QUTE)/config.py 
 
 .PHONY: fonts
-fonts: $(FONTSLIST)
+fonts: $(FONTSLIST) misc/friz-fonts.conf
 
 .PHONY: misc
 misc: $(MISC)
@@ -72,7 +75,7 @@ install:
 	@echo "################################# QUTEBROWSER ##################################"
 	@echo "################################################################################"
 	@echo "> Backup your own .config/qutebrowser/config.py"
-	@echo "> symlink: ln -s '$(PWD)/browser/qutebrowser/config.py' '$(HOME)/.config/qutebrowser/config.py'"
+	@echo "> symlink: ln -s '$(PWD)/$(QUTE)/config.py' '$(HOME)/.config/qutebrowser/config.py'"
 	@echo "> restart qutebrowser or run :config-source"
 	@echo
 	@echo "################################################################################"
@@ -85,7 +88,7 @@ install:
 	@echo "################################################################################"
 	@echo "################################## AWESOMEWM ###################################"
 	@echo "################################################################################"
-	@echo "> ln -s '$(PWD)/wm/awesome' '$(HOME)/.config/awesome'"
+	@echo "> ln -s '$(PWD)/$(AWESOME)' '$(HOME)/.config/awesome'"
 	@echo "> requires friz-load to be running. @see services"
 	@echo
 	@echo "################################################################################"
@@ -100,8 +103,8 @@ install:
 	@echo "################################################################################"
 	@echo "##################################### FONTS ####################################"
 	@echo "################################################################################"
-	@echo "> ln -s '$(PWD)/fonts/friz.conf' '$(HOME)/.config/fontconfig/conf.d/10-friz.conf'"
-	@echo "> ln -s '$(PWD)/contrib/fonts' '$(HOME)/.fonts/friz-contrib-fonts'"
+	@echo "> ln -s '$(PWD)/misc/friz-fonts.conf' '$(HOME)/.config/fontconfig/conf.d/10-friz.conf'"
+	@echo "> ln -s '$(PWD)/$(FONTS)' '$(HOME)/.fonts/friz-contrib-fonts'"
 	@echo "> fc-cache -rf"
 	@echo
 	@echo "################################################################################"
@@ -140,15 +143,15 @@ $(CONTRIB)/goclip:
 $(CONTRIB)/fzf:
 	git clone https://github.com/junegunn/fzf "$@"
 
-browser/qutebrowser/config.py: browser/qutebrowser/config.def.py themes/active | $(BIN)/friz-theme
+$(QUTE)/config.py: $(QUTE)/config.def.py themes/active | $(BIN)/friz-theme
 	cp "$<" "$@"
 	$(BIN)/friz-theme -qutebrowser "$@" themes/active
 
-wm/awesome/vars.lua: wm/awesome/vars.def.lua $(CONFIG)/soundcard
+$(AWESOME)/vars.lua: $(AWESOME)/vars.def.lua $(CONFIG)/soundcard
 	sed "s#soundcard =.*#soundcard = \"$$(cat "$(CONFIG)/soundcard")\"#" "$<" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
-wm/awesome/theme.lua: themes/active | $(BIN)/friz-theme
+$(AWESOME)/theme.lua: themes/active | $(BIN)/friz-theme
 	$(BIN)/friz-theme -awesome "$@" "$<"
 
 themes/active:
@@ -169,9 +172,6 @@ $(FONTS)/bitmap-fonts: | $(FONTS)
 $(FONTS)/tamzen: | $(FONTS)
 	git clone https://github.com/sunaku/tamzen-font "$@"
 
-$(CONFIG) $(BIN) $(CONTRIB) $(FONTS):
-	@mkdir "$@" 2>/dev/null || true
-
 misc/.xinitrc: misc/.xinitrc.def $(CONFIG)/xinit $(CONFIG)/goclip
 	sed '/^{custom}$$/,$$d' "$<" > "$@.tmp"
 	cat $(CONFIG)/xinit >> "$@.tmp"
@@ -191,6 +191,12 @@ misc/.xbindkeysrc: misc/.xbindkeysrc.def misc/.xbindkeysrc.goclip $(CONFIG)/xbin
 	cat $(CONFIG)/xbindkeys >> "$@.tmp"
 	mv "$@.tmp" "$@"
 
+misc/friz-fonts.conf: misc/friz-fonts.conf.def
+	cp "$<" "$@"
+
+$(CONFIG) $(BIN) $(CONTRIB) $(FONTS):
+	@mkdir -p "$@" 2>/dev/null || true
+
 .PHONY: reset
 reset:
 	@echo -en '\033[31m'
@@ -209,3 +215,11 @@ reset:
 			rm -rf "$(CONTRIB)" && \
 			echo cleaned; \
 		fi
+
+.PHONY: clean
+clean:
+	rm -rf $(BIN) $(CONTRIB) $(FONTS)
+	rm -f $(AWESOME)/vars.lua
+	rm -f $(QUTE)/config.py
+	rm -f $(MISC)
+	rm -f $(SERVICES)/friz-load.service
