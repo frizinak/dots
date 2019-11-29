@@ -121,6 +121,13 @@ func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, er
 		hsl2[i] = hsl2[i-amount/2].Modify(0.9, 0.7)
 	}
 
+	if !l.dark {
+		h := len(hsl2) / 2
+		f := hsl2[0:h]
+		hsl2 = hsl2[h:]
+		hsl2 = append(hsl2, f...)
+	}
+
 	colors = hsl2.Colors()
 	c := build.NewColors(colors, fg.Color(), bg.Color())
 	return font, size, c, nil

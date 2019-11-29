@@ -1,5 +1,5 @@
 local prim = colorBg
-local acc = color6
+local acc = color5
 local fg = colorFg
 local warn = color3
 local urgent = color2

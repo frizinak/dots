@@ -22,6 +22,12 @@ MISC = misc/.xinitrc misc/.xbindkeysrc
 WALLPAPERS = $(patsubst themes/wallpapers/%.png,themes/%,$(wildcard themes/wallpapers/*))
 WALLPAPERS += $(patsubst themes/wallpapers/%.jpg,themes/%,$(wildcard themes/wallpapers/*))
 
+_THEME = $(shell readlink themes/active)
+ACTIVETHEME =
+ifneq ($(_THEME),)
+	ACTIVETHEME = themes/$(_THEME)
+endif
+
 CONTRIBS_UPDATE = $(patsubst $(CONTRIB)/%,$(CONTRIB)/%-update,$(wildcard $(CONTRIB)/*))
 CONTRIBS_UPDATE += $(patsubst $(FONTS)/%,$(FONTS)/%-update,$(wildcard $(FONTS)/*))
 BINS = $(wildcard $(BIN)/*)
@@ -53,8 +59,10 @@ theme: $(WALLPAPERS) | themes
 	./utils/theme-picker $(THEME)
 	$(MAKE) all
 
-themes/%: themes/wallpapers/%.* $(BIN)/friz-theme $(CONFIG)/wallpaper-contrast | themes
-	$(BIN)/friz-theme -export -contrast $$(cat $(CONFIG)/wallpaper-contrast) "$<" > "$@.tmp"
+themes/%: themes/wallpapers/%.* $(BIN)/friz-theme $(CONFIG)/wallpaper-settings | themes
+	c=$$(grep contrast $(CONFIG)/wallpaper-settings | cut -d: -f2); \
+	s=$$(grep dark $(CONFIG)/wallpaper-settings | cut -d: -f2 | grep -qv 1 && echo '-swap'); \
+	$(BIN)/friz-theme -export $$s -contrast $${c:-0} "$<" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
 .PHONY: update _update
@@ -179,7 +187,7 @@ $(BIN)/goclip: $(CONTRIB)/goclip
 $(BIN)/fzf: $(CONTRIB)/fzf
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
 
-$(CONTRIB)/st/st: themes/active $(CONTRIB)/st $(CONFIG)/st-config.h | $(BIN)/friz-theme
+$(CONTRIB)/st/st: themes/active $(ACTIVETHEME) $(CONTRIB)/st $(CONFIG)/st-config.h | $(BIN)/friz-theme
 	cp $(CONFIG)/st-config.h $(CONTRIB)/st/config.h
 	$(BIN)/friz-theme -st $(CONTRIB)/st -st-noinstall "$<"
 	make -C $(CONTRIB)/st
@@ -194,7 +202,7 @@ $(CONTRIB)/goclip: | $(CONTRIB)
 $(CONTRIB)/fzf: | $(CONTRIB)
 	git clone https://github.com/junegunn/fzf "$@"
 
-$(QUTE)/config.py: $(QUTE)/config.def.py themes/active | $(BIN)/friz-theme
+$(QUTE)/config.py: $(QUTE)/config.def.py themes/active $(ACTIVETHEME) | $(BIN)/friz-theme
 	cp "$<" "$@"
 	$(BIN)/friz-theme -qutebrowser "$@" themes/active
 
@@ -202,7 +210,7 @@ $(AWESOME)/vars.lua: $(AWESOME)/vars.def.lua $(CONFIG)/soundcard
 	sed "s#soundcard =.*#soundcard = \"$$(cat "$(CONFIG)/soundcard")\"#" "$<" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
-$(AWESOME)/theme.lua: themes/active $(AWESOME)/theme.def.lua | $(BIN)/friz-theme
+$(AWESOME)/theme.lua: themes/active $(AWESOME)/theme.def.lua $(ACTIVETHEME) | $(BIN)/friz-theme
 	cp $(AWESOME)/theme.def.lua "$@"
 	$(BIN)/friz-theme -awesome "$@" "$<"
 
