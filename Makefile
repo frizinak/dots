@@ -219,7 +219,7 @@ $(BIN)/fzf: $(CONTRIB)/fzf
 
 $(CONTRIB)/st/st: themes/active $(ACTIVETHEME) $(CONTRIB)/st $(CONFIG)/st-config.h | $(BIN)/friz-theme
 	cp $(CONFIG)/st-config.h $(CONTRIB)/st/config.h
-	$(BIN)/friz-theme -st $(CONTRIB)/st -st-noinstall "$<"
+	$(BIN)/friz-theme -st $(CONTRIB)/st -st-noinstall -st-nofont "$<"
 	make -C $(CONTRIB)/st
 	touch $(CONTRIB)/st/st
 
@@ -236,9 +236,8 @@ $(QUTE)/config.py: $(QUTE)/config.def.py themes/active $(ACTIVETHEME) | $(BIN)/f
 	cp "$<" "$@"
 	$(BIN)/friz-theme -qutebrowser "$@" themes/active
 
-$(AWESOME)/vars.lua: $(AWESOME)/vars.def.lua $(CONFIG)/soundcard
-	sed "s#soundcard =.*#soundcard = \"$$(cat "$(CONFIG)/soundcard")\"#" "$<" > "$@.tmp"
-	mv "$@.tmp" "$@"
+$(AWESOME)/vars.lua: $(CONFIG)/awesome-vars.lua
+	cp "$<" "$@"
 
 $(AWESOME)/theme.lua: themes/active $(AWESOME)/theme.def.lua $(ACTIVETHEME) | $(BIN)/friz-theme
 	cp $(AWESOME)/theme.def.lua "$@"

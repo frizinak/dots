@@ -4,14 +4,16 @@ local fg = colorFg
 local warn = color3
 local urgent = color2
 
-local bg = prim
-local gap = 10
+local vars = require("vars")
 
-local titlebar_size = 3
-local border_width = 0
-if gap == 0 then
-    titlebar_size = 0
-    border_width = 2
+local bg = prim
+local gap = vars.gap
+
+local titlebar_size = vars.titlebar
+local border_width = vars.border
+local font = font .. " " .. fontSize
+if vars.fontOverride ~= "" then
+    font = vars.fontOverride
 end
 
 local theme = {
@@ -35,7 +37,7 @@ local theme = {
 
     useless_gap_width = gap,
 
-    font = font .. "-ttf 20px",
+    font = font,
     bg_normal = bg,
     bg_urgent = bg,
 

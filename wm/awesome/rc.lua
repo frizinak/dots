@@ -7,7 +7,6 @@ modkey = "Mod4"
 altkey = "Mod1"
 terminal = "st -e tm"
 
-require("vars")
 require("notifications")
 require("mywibox")
 

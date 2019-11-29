@@ -20,10 +20,12 @@ import (
 func main() {
 	var flagSt string
 	var flagStNoInstall bool
+	var flagStNoFont bool
 	var flagAwesome string
 	var flagQutebrowser string
 	flag.StringVar(&flagSt, "st", "", "st build dir")
-	flag.BoolVar(&flagStNoInstall, "st-noinstall", false, "dont install st")
+	flag.BoolVar(&flagStNoInstall, "st-noinstall", false, "don't install st")
+	flag.BoolVar(&flagStNoFont, "st-nofont", false, "don't replace st font")
 	flag.StringVar(&flagAwesome, "awesome", "", "awesomewm lua file to put colors in")
 	flag.StringVar(&flagQutebrowser, "qutebrowser", "", "qutebrowser .py file to put colors in")
 
@@ -51,7 +53,7 @@ func main() {
 
 	builders := make([]build.Builder, 0)
 	if flagSt != "" {
-		builders = append(builders, st.New(flagSt, !flagStNoInstall))
+		builders = append(builders, st.New(flagSt, !flagStNoInstall, !flagStNoFont))
 	}
 	if flagAwesome != "" {
 		builders = append(builders, awesome.New(flagAwesome))

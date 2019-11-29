@@ -16,12 +16,13 @@ import (
 
 type St struct {
 	install bool
+	font    bool
 	dir     string
 	file    string
 }
 
-func New(dir string, install bool) *St {
-	return &St{install, dir, filepath.Join(dir, "config.h")}
+func New(dir string, install bool, font bool) *St {
+	return &St{install, font, dir, filepath.Join(dir, "config.h")}
 }
 
 func (st *St) Name() string {
@@ -83,7 +84,7 @@ func (st *St) Build(l *log.Logger, f build.Font, s build.FontSize, c *build.Colo
 	for scanner.Scan() {
 		d := scanner.Bytes()
 		if !bytes.HasPrefix(d, comment) {
-			if f != "" && bytes.Contains(d, fontLine) {
+			if st.font && f != "" && bytes.Contains(d, fontLine) {
 				continue
 			}
 
@@ -132,7 +133,7 @@ func (st *St) Build(l *log.Logger, f build.Font, s build.FontSize, c *build.Colo
 		return err
 	}
 
-	if f != "" {
+	if st.font && f != "" {
 		if _, err := w.Write(formatFont(f, s)); err != nil {
 			return err
 		}
@@ -147,16 +148,6 @@ func make(dir string) error {
 
 func makeInstall(l *log.Logger, dir string) error {
 	return exec.Command("sudo", "make", "-C", dir, "install").Run()
-	// cmd := exec.Command("sudo", "make", "-C", dir, "install")
-	// if cmd.Run() == nil {
-	// 	return nil
-	// }
-
-	// l.Println("Installing st (sudo make install)")
-	// // cmd.Stdin = os.Stdin
-	// // cmd.Stderr = os.Stderr
-	// // cmd.Stdout = os.Stdout
-	// return cmd.Run()
 }
 
 func formatDefaults() []byte {

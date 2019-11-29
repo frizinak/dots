@@ -5,6 +5,7 @@ local widgets = require("friz.widgets")
 local load = {"0.0GHz", "0", "0", "0", "", "0.00", "0.00B"}
 local windowsUp = ""
 local gpuInUse = ""
+local soundcard = require("vars").soundcard
 
 function split(input)
     local t={}

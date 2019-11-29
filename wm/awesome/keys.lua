@@ -2,6 +2,7 @@ local awful = require("awful")
 local utils = require("friz.utils")
 local wi = require("mywibox")
 local w = require("widgets")
+local soundcard = require("vars").soundcard
 
 function runPrompt(prompt, prefill, exec, isShell)
     local compl = nil

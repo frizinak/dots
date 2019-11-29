@@ -23,7 +23,12 @@
         <edit name="family" mode="assign_replace"><string>mymonospace</string></edit>
     </match>
     <match target="pattern">
-        <test qual="any" name="family" compare="eq"><string>monospace-ttf</string></test>
+        <test qual="any" name="family" compare="eq"><string>monospacebmp</string></test>
+        <edit name="family" mode="assign_replace" binding="strong"><string>mymonospace</string></edit>
+        <edit name="fontformat" mode="assign_replace" binding="strong"><string>bdf</string></edit>
+    </match>
+    <match target="pattern">
+        <test qual="any" name="family" compare="eq"><string>monospacettf</string></test>
         <edit name="family" mode="assign_replace" binding="strong"><string>mymonospace</string></edit>
         <edit name="fontformat" mode="assign_replace" binding="strong"><string>truetype</string></edit>
     </match>
@@ -35,8 +40,8 @@
     <alias>
         <family>mymonospace</family>
         <prefer>
-            <family>tamzen bmp</family>
             <family>Tamzen</family>
+            <family>tamzen bmp</family>
             <family>Pixel UniCode</family>
             <family>GNU Unifont</family>
             <family>Unifont</family>
