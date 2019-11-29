@@ -88,7 +88,6 @@ help:
 	@echo '- wip, too little documentation, not all my dots migrated, ...'
 	@echo
 	@echo 'ATM contains:'
-
 	@echo '- my awesomewm config [https://raw.githubusercontent.com/frizinak/dots/master/.repo/awesome.png]'
 	@echo '    - frizinak/goclip, an fzf powered clipboard fuzzy matcher thingy (Meta+Shift+P)'
 	@echo '      depends on misc/.xinitrc and misc/.xbindkeysrc'
@@ -124,7 +123,20 @@ help:
 	@echo '$$ make install'
 	@echo '- removes all files on your hdd'
 	@echo '- nah, just a help text explaining how to install everything'
-	@echo '- dont think it makes much sense to install everything, you pick, choose and ln'
+	@echo "- don't think it makes much sense to install everything, you pick, choose and ln"
+	@echo
+	@echo 'About fonts:'
+	@echo '- monospace everything'
+	@echo '- monospacebmp force bitmap version (st)' 
+	@echo '- monospacettf force ttf version (awesome / pango)'
+	@echo
+	@echo '- change font of st: $(CONFIG)/st-config.h'
+	@echo '- change font of awesome: $(CONFIG)/awesome-vars.lua'
+	@echo "- don't like something in the supplied friz-fonts.conf, override it"
+	@echo '  with an e.g. $$HOME/.config/fontconfig/conf.d/20-stupid-friz.conf'
+	@echo '  or if nothing suits you: remove the friz-fonts.conf symlink'
+	@echo '  note: you will need to reconfigure st and awesome (see higher)'
+	@echo
 
 .PHONY: list
 list:
@@ -186,8 +198,9 @@ README.md: Makefile
 	@echo >> "$@.tmp"
 	$(MAKE) -s help >> "$@.tmp"
 	if ! diff "$@.tmp" "$@"; then \
-		mv "$@.tmp" "$@"; \
-		git add README.md; \
+		mv "$@.tmp" "$@" && \
+		git add README.md && \
+		git add Makefile && \
 		git commit -m 'readme' -e; \
 	fi
 	rm -f "$@.tmp"

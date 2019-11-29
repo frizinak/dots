@@ -43,4 +43,17 @@ $ make reload
 $ make install
 - removes all files on your hdd
 - nah, just a help text explaining how to install everything
-- dont think it makes much sense to install everything, you pick, choose and ln
+- don't think it makes much sense to install everything, you pick, choose and ln
+
+About fonts:
+- monospace everything
+- monospacebmp force bitmap version (st)
+- monospacettf force ttf version (awesome / pango)
+
+- change font of st: configs/st-config.h
+- change font of awesome: configs/awesome-vars.lua
+- don't like something in the supplied friz-fonts.conf, override it
+  with an e.g. $HOME/.config/fontconfig/conf.d/20-stupid-friz.conf
+  or if nothing suits you: remove the friz-fonts.conf symlink
+  note: you will need to reconfigure st and awesome (see higher)
+
