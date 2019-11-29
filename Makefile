@@ -13,9 +13,30 @@ UNIFONTS = $(FONTS)/unifont_upper-12.1.03.ttf \
 	$(FONTS)/unifont-12.1.03.ttf \
 	$(FONTS)/unifont-12.1.03.bdf.gz \
 
-FONTSLIST = $(UNIFONTS) \
-	$(FONTS)/bitmap-fonts \
-	$(FONTS)/tamzen
+FONTSLIST = $(UNIFONTS)
+
+FONT_REPOS = https://github.com/Tecate/bitmap-fonts \
+	https://github.com/sunaku/tamzen-font \
+	https://github.com/librefonts/lekton \
+	https://github.com/koemaeda/gohufont-ttf
+
+define FONT_REPO_TARGET
+FONTSLIST += $(FONTS)/$(shell basename "$(1)")
+$(FONTS)/$(shell basename "$(1)"): | $(FONTS)
+	@echo "$(1)" "$$@"
+	git clone "$(1)" "$$@"
+endef
+
+define DAFONT_TARGET
+FONTSLIST += $(FONTS)/dafont/$(1).ttf
+$(FONTS)/dafont/$(1).ttf: | $(FONTS) $(FONTS)/dafont
+	curl -Ss "https://dl.dafont.com/dl/?f=$(1)" > "$(FONTS)/dafont/$(1).zip"
+	unzip -o -d "$(FONTS)/dafont/tmp-$(1)" "$(FONTS)/dafont/$(1).zip"
+	mv "$(FONTS)/dafont/tmp-$(1)/$(2)" "$$@.tmp"
+	rm -rf "$(FONTS)/dafont/tmp-$(1)"
+	rm "$(FONTS)/dafont/$(1).zip"
+	mv "$$@.tmp" "$$@"
+endef
 
 MISC = misc/.xinitrc misc/.xbindkeysrc
 
@@ -47,6 +68,11 @@ awesome: $(AWESOME)/vars.lua $(AWESOME)/theme.lua $(SERVICES)/friz-load.service
 
 .PHONY: qutebrowser
 qutebrowser: $(QUTE)/config.py 
+
+$(foreach i,$(FONT_REPOS),$(eval $(call FONT_REPO_TARGET,$(i))))
+$(eval $(call DAFONT_TARGET,pixel_unicode,Pixel-UniCode.ttf))
+$(eval $(call DAFONT_TARGET,saxmono,saxmono.ttf))
+$(eval $(call DAFONT_TARGET,basis33,basis33.ttf))
 
 .PHONY: fonts
 fonts: $(FONTSLIST) misc/friz-fonts.conf
@@ -272,12 +298,6 @@ $(UNIFONTS): | $(FONTS)
 	curl -Ss "http://unifoundry.com/pub/unifont/unifont-12.1.03/font-builds/$$(basename "$@")" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
-$(FONTS)/bitmap-fonts: | $(FONTS)
-	git clone https://github.com/Tecate/bitmap-fonts.git "$@"
-
-$(FONTS)/tamzen: | $(FONTS)
-	git clone https://github.com/sunaku/tamzen-font "$@"
-
 misc/.xinitrc: misc/.xinitrc.def $(CONFIG)/xinit $(CONFIG)/goclip
 	sed '/^{custom}$$/,$$d' "$<" > "$@.tmp"
 	cat $(CONFIG)/xinit >> "$@.tmp"
@@ -300,7 +320,7 @@ misc/.xbindkeysrc: misc/.xbindkeysrc.def misc/.xbindkeysrc.goclip $(CONFIG)/xbin
 misc/friz-fonts.conf: misc/friz-fonts.conf.def
 	cp "$<" "$@"
 
-$(CONFIG) $(BIN) $(CONTRIB) $(FONTS):
+$(CONFIG) $(BIN) $(CONTRIB) $(FONTS) $(FONTS)/dafont:
 	@mkdir -p "$@" 2>/dev/null || true
 
 .PHONY: reset
