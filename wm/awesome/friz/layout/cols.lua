@@ -18,22 +18,28 @@ function cols.arrange(p)
         return
     end
 
+    local minRows = 1
+    local spots = #cls
+    if spots < minRows*num_x then
+        spots = minRows*num_x
+    end
+
     wa.x = wa.x + border_x0
     wa.y = wa.y + border_y0
     wa.width = wa.width - border_x0 - border_x1 + gap
     wa.height = wa.height - border_y0 - border_y1 + gap
 
-    local width = wa.width / math.min(num_x + 1, #cls + 1)
-    if #cls == 1 then
+    local width = wa.width / math.min(num_x + 1, spots + 1)
+    if spots == 1 then
         width = wa.width
     end
 
     local topHeight = wa.height / 4
     local bottomHeight = wa.height
     local geom = {x = wa.x, y = wa.y, width = 0, height = 0}
-    local _perCol = #cls / num_x
-    local columns = (#cls - 1) % num_x
-    for i = 1,#cls,1 do
+    local _perCol = spots / num_x
+    local columns = (spots - 1) % num_x
+    for i = 1,spots,1 do
         local c = cls[i]
         geom.y = wa.y
         geom.width = width
@@ -50,10 +56,10 @@ function cols.arrange(p)
                 geom.height = topHeight / perCol
                 geom.y = wa.y + (math.floor((i - 1) / num_x) - 1) * (topHeight / perCol)
             end
-        elseif i + num_x <= #cls then
+        elseif i + num_x <= spots then
             geom.height = bottomHeight - topHeight
             geom.y = wa.y + topHeight
-            if #cls > num_x then
+            if spots > num_x then
                 geom.y = geom.y 
             end
         end
@@ -62,17 +68,28 @@ function cols.arrange(p)
             geom.width = geom.width + width
         end
 
-        geom.height = geom.height - 2 * c.border_width - gap
-        geom.width = geom.width - 2 * c.border_width - gap
-        c:geometry(geom)
+
+        geom.height = geom.height - gap
+        geom.width = geom.width - gap
+        if c ~= nil then
+            geom.height = geom.height + 2 * c.border_width
+            geom.width = geom.width + 2 * c.border_width
+            c:geometry(geom)
+        end
 
         -- swap master
         if i == 2 then
-            cls[2]:geometry(cls[1]:geometry())
+            if c ~= nil then
+                c:geometry(cls[1]:geometry())
+            end
             cls[1]:geometry(geom)
         end
 
-        geom.x = geom.x + geom.width + gap + 2 * c.border_width
+        geom.x = geom.x + geom.width + gap
+        if c ~= nil then
+            geom.x = geom.x + 2 * c.border_width
+        end
+
         if i % num_x == 0 then
             geom.x = wa.x
         end
