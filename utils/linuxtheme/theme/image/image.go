@@ -92,7 +92,8 @@ func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, er
 
 	hsl := color.NewHSLs(colors)
 	hsl.SortLightness()
-	bg, fg := hsl[0].Modify(1, 1.1), hsl[len(hsl)-1].Modify(1, 0.9)
+	bg, fg := hsl[0], hsl[len(hsl)-1]
+	bg, fg = bg.Modify(bg.Saturation(), 0), fg.Modify(fg.Saturation(), 1)
 	hsl = hsl[1 : len(hsl)-1]
 	hsl.SortHue()
 	if len(hsl) < amount {
@@ -110,15 +111,19 @@ func (l *Image) Load(file string) (build.Font, build.FontSize, *build.Colors, er
 		n += jump
 	}
 
-	hsl2[0] = bg.Modify(1, 1.8)
+	lit1, lit2 := 0.6, 0.8
+	hsl2[0] = bg.Modify(bg.Saturation(), 0)
 	hsl2[len(hsl2)/2-1] = fg
 	if !l.dark {
-		hsl2[0] = fg.Modify(1, 0.55)
+		hsl2[0] = fg.Modify(fg.Saturation(), 0)
 		hsl2[len(hsl2)/2-1] = bg
+		lit1, lit2 = 1-lit1, 1-lit2
 	}
 
 	for i := amount / 2; i < amount; i++ {
-		hsl2[i] = hsl2[i-amount/2].Modify(0.9, 0.7)
+		v := hsl2[i-amount/2]
+		hsl2[i] = v.Modify(v.Saturation(), lit1)
+		hsl2[i-amount/2] = v.Modify(v.Saturation()-0.3, lit2)
 	}
 
 	if !l.dark {

@@ -21,13 +21,13 @@ func (hsl HSL) Intensity() float64  { return hsl.intensity }
 func (hsl HSL) Color() Color        { return hsl.c }
 
 func (hsl HSL) Modify(saturation float64, lightness float64) HSL {
-	hsl.s *= saturation
+	hsl.s = (hsl.s + saturation) / 2
 	if hsl.s < 0 {
 		hsl.s = 0
 	} else if hsl.s > 1 {
 		hsl.s = 1
 	}
-	hsl.l *= lightness
+	hsl.l = (hsl.l + lightness) / 2
 	if hsl.l < 0 {
 		hsl.l = 0
 	} else if hsl.l > 1 {
@@ -162,5 +162,5 @@ func (c Color) HSL() HSL {
 		nl = -nl
 	}
 
-	return HSL{c, h, s, l, s * 2 * (nl + 0.5)}
+	return HSL{c, h, s, l, s + 2*(nl+0.5)}
 }
