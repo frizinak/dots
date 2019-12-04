@@ -25,7 +25,8 @@
     <match target="pattern">
         <test qual="any" name="family" compare="eq"><string>monospacebmp</string></test>
         <edit name="family" mode="assign_replace" binding="strong"><string>mymonospace</string></edit>
-        <edit name="fontformat" mode="assign_replace" binding="strong"><string>bdf</string></edit>
+        <edit name="fontformat" mode="prepend_first" binding="strong"><string>bdf</string></edit>
+        <edit name="fontformat" mode="prepend_first" binding="strong"><string>pcf</string></edit>
     </match>
     <match target="pattern">
         <test qual="any" name="family" compare="eq"><string>monospacettf</string></test>
@@ -42,18 +43,17 @@
         <prefer>
             <family>Tamzen</family>
             <family>tamzen bmp</family>
+            <family>saxMono</family>
             <family>Pixel UniCode</family>
-            <family>GNU Unifont</family>
-            <family>Unifont</family>
-            <family>Unifont Upper</family>
-            <family>Unifont CSUR</family>
             <family>basis33</family>
-            <family>American Stencil</family>
             <family>saxmono</family>
             <family>Source Code Variable</family>
             <family>lekton</family>
             <family>gohufont</family>
-            <family>SGI Screen</family>
+            <family>Unifont</family>
+            <family>Unifont Upper</family>
+            <family>Unifont CSUR</family>
+            <family>GNU Unifont</family>
         </prefer>
     </alias>
 </fontconfig>

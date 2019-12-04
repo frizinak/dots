@@ -18,7 +18,8 @@ FONTSLIST = $(UNIFONTS)
 FONT_REPOS = https://github.com/Tecate/bitmap-fonts \
 	https://github.com/sunaku/tamzen-font \
 	https://github.com/librefonts/lekton \
-	https://github.com/koemaeda/gohufont-ttf
+	https://github.com/koemaeda/gohufont-ttf \
+	https://github.com/adobe-fonts/source-code-pro
 
 define FONT_REPO_TARGET
 FONTSLIST += $(FONTS)/$(shell basename "$(1)")
@@ -76,6 +77,7 @@ $(eval $(call DAFONT_TARGET,basis33,basis33.ttf))
 
 .PHONY: fonts
 fonts: $(FONTSLIST) misc/friz-fonts.conf
+	fc-cache -r
 
 .PHONY: misc
 misc: $(MISC)
