@@ -77,7 +77,6 @@ $(eval $(call DAFONT_TARGET,basis33,basis33.ttf))
 
 .PHONY: fonts
 fonts: $(FONTSLIST) misc/friz-fonts.conf
-	fc-cache -r
 
 .PHONY: misc
 misc: $(MISC)
