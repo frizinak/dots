@@ -117,6 +117,7 @@ for i = 1, 10 do
 end
 
 clientbuttons = awful.util.table.join(
+    awful.button({}, 1,  utils.client.raise),
     awful.button({ modkey }, 1, awful.mouse.client.move),
     awful.button({ modkey }, 3, awful.mouse.client.resize)
 )
