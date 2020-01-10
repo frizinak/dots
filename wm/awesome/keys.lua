@@ -1,8 +1,10 @@
 local awful = require("awful")
 local utils = require("friz.utils")
+local layout = require("friz.layout")
 local wi = require("mywibox")
 local w = require("widgets")
 local soundcard = require("vars").soundcard
+local layouts = {layout.cols, layout.fair}
 
 function runPrompt(prompt, prefill, exec, isShell)
     local compl = nil
