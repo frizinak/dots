@@ -13,6 +13,7 @@ function cols.arrange(p)
     local wa = p.workarea
     local cls = p.clients
     local num_x = screen[p.screen].selected_tag.master_count
+    local mwf = screen[p.screen].selected_tag.master_width_factor
     num_x = math.max(1, num_x + 3)
     if #cls == 0 then
         return
@@ -29,7 +30,8 @@ function cols.arrange(p)
     wa.width = wa.width - border_x0 - border_x1 + gap
     wa.height = wa.height - border_y0 - border_y1 + gap
 
-    local width = wa.width / math.min(num_x + 1, spots + 1)
+    local extra = math.floor((mwf * mwf * mwf) / 0.05)
+    local width = wa.width / math.min(num_x + extra, spots + extra)
     if spots == 1 then
         width = wa.width
     end
@@ -65,7 +67,7 @@ function cols.arrange(p)
         end
 
         if i % num_x == 2 then
-            geom.width = geom.width + width
+            geom.width = geom.width + extra*width
         end
 
 
