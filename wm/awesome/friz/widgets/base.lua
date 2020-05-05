@@ -7,7 +7,7 @@ local function worker(args)
     local args = args or {}
     local timeout = args.timeout or 5
     local cmd = args.cmd or ""
-    local alway = args.always or false
+    local always = args.always or false
     local settings = args.settings or function() end
     local running = false
 

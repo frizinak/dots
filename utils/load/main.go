@@ -11,7 +11,8 @@ import (
 	"github.com/frizinak/load/load"
 )
 
-var nl = []byte{32}
+var nl = []byte{10}
+var colon = []byte(": ")
 
 func log(err error) {
 	if err == nil {
@@ -37,17 +38,26 @@ type data struct {
 	temp  load.Temperature
 	mem   mem
 	net   net
+	bat   load.Percentage
 }
 
 func (d *data) writeTo(w io.Writer) error {
 	var wErr error
 	buf := bufio.NewWriter(w)
-	wr := func(s string) {
+	wr := func(l, s string) {
 		if wErr != nil {
 			return
 		}
 
 		var err error
+		if _, err = buf.WriteString(l); err != nil {
+			wErr = err
+			return
+		}
+		if _, err = buf.Write(colon); err != nil {
+			wErr = err
+			return
+		}
 		if _, err = buf.WriteString(s); err != nil {
 			wErr = err
 			return
@@ -58,31 +68,21 @@ func (d *data) writeTo(w io.Writer) error {
 	}
 
 	memtotal := d.mem.memTotal.Human()
-	netunit := d.net.up.Human().Unit()
-	if netunit < load.KiB {
-		netunit = load.KiB
-	}
-	if downunit := d.net.down.Human().Unit(); downunit > netunit {
-		netunit = downunit
-	}
 
-	wr(d.clock.GHz())
-	wr(d.cpu.String())
-	wr(d.temp.String())
-	wr(d.mem.mem.String())
+	wr("clock", d.clock.GHz())
+	wr("load", d.cpu.String())
+	wr("temp", d.temp.String())
+	wr("memLoad", d.mem.mem.String())
 	wr(
+		"mem",
 		fmt.Sprintf("%s/%s",
 			d.mem.memUnalloc.Convert(memtotal.Unit()).StringNoUnit(),
 			memtotal.String(),
 		),
 	)
-	wr(
-		fmt.Sprintf("%s %s",
-			d.net.up.Convert(netunit).StringNoUnit(),
-			d.net.down.Convert(netunit).String(),
-		),
-	)
-
+	wr("netUp", d.net.up.Human().String())
+	wr("netDown", d.net.down.Human().String())
+	wr("bat", d.bat.String())
 	if err := buf.Flush(); err != nil {
 		return err
 	}
@@ -113,6 +113,7 @@ func main() {
 	clockCh := make(chan load.ClockMHz)
 	cpuCh := make(chan load.Percentage)
 	tempCh := make(chan load.Temperature)
+	batCh := make(chan load.Percentage)
 	memCh := make(chan mem)
 	netCh := make(chan net)
 
@@ -153,6 +154,11 @@ func main() {
 		netCh <- net{v1, v2}
 		return err
 	})
+	make(time.Second*5, func() error {
+		v, err := l.Bat(0)
+		batCh <- v
+		return err
+	})
 
 	data := data{}
 	after := func() <-chan time.Time {
@@ -173,6 +179,8 @@ func main() {
 		case data.mem = <-memCh:
 			u = true
 		case data.net = <-netCh:
+			u = true
+		case data.bat = <-batCh:
 			u = true
 		case <-a:
 			a = after()

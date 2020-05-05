@@ -2,14 +2,14 @@ local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
 local widgets = require("friz.widgets")
-local load = {"0.0GHz", "0", "0", "0", "", "0.00", "0.00B"}
+local load = {}
 local windowsUp = ""
 local gpuInUse = ""
 local soundcard = require("vars").soundcard
 
 function split(input)
     local t={}
-    for str in string.gmatch(input, "([^%s]+)") do
+    for str in string.gmatch(input, "([^\n]+)") do
         table.insert(t, str)
     end
     return t
@@ -55,8 +55,11 @@ local cputextwidget = widgets.base(
         cmd = "noop",
         timeout = 0.5,
         settings = function ()
-            local cpu = tonumber(load[2])
-            local temp = tonumber(load[3])
+            if load[3] == nil then
+                return
+            end
+            local cpu = tonumber(load[2]:sub(7))
+            local temp = tonumber(load[3]:sub(7))
             local loadColor = beautiful.widget.color_bad
             if cpu < 30 then
                 loadColor = beautiful.widget.color_ok
@@ -74,11 +77,11 @@ local cputextwidget = widgets.base(
             widget:set_markup(
                 string.format(
                     "%s <span color=\"%s\">%s°</span> <span color=\"%s\">%s%%</span>",
-                    load[1],
+                    load[1]:sub(8),
                     tempColor,
-                    load[3],
+                    temp,
                     loadColor,
-                    load[2]
+                    cpu
                 )
             )
         end
@@ -91,7 +94,10 @@ local memtextwidget = widgets.base(
         cmd = "noop",
         timeout = 1,
         settings = function()
-            local pct = tonumber(load[4])
+            if load[4] == nil then
+                return
+            end
+            local pct = tonumber(load[4]:sub(10))
             local color = beautiful.widget.color_bad
             if pct < 70 then
                 color = beautiful.widget.color_ok
@@ -102,7 +108,7 @@ local memtextwidget = widgets.base(
             widget:set_markup(
                 string.format(
                     "%s <span color=\"%s\">%s%%</span>",
-                    load[5],
+                    load[5]:sub(6),
                     color,
                     pct
                 )
@@ -116,17 +122,19 @@ local networkwidget = widgets.base(
         cmd = "noop",
         timeout = 1,
         settings = function()
+            if load[7] == nil then
+                return
+            end
             widget:set_markup(
                 string.format(
                     "%s %s",
-                    load[6],
-                    load[7]
+                    load[6]:sub(8),
+                    load[7]:sub(10)
                 )
             )
         end
     }
 )
-
 
 local windowsiconwidget = widgets.base(
     {
