@@ -6,7 +6,7 @@ colorWarn = color3
 colorBad = color2
 colorGood = color4
 
-config.set('colors.webpage.bg', colorBg)
+# config.set('colors.webpage.bg', colorBg)
 
 config.set('colors.completion.even.bg', colorBg)
 config.set('colors.completion.odd.bg', colorBg)
@@ -84,4 +84,5 @@ config.set('fonts.messages.info', f)
 config.set('fonts.messages.warning', f)
 config.set('fonts.prompts', f)
 config.set('fonts.statusbar', f)
-config.set('fonts.tabs', f)
+config.set('fonts.tabs.selected', f)
+config.set('fonts.tabs.unselected', f)
