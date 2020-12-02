@@ -14,7 +14,12 @@ function cols.arrange(p)
     local cls = p.clients
     local num_x = screen[p.screen].selected_tag.master_count
     local mwf = screen[p.screen].selected_tag.master_width_factor
-    num_x = math.max(1, num_x + 3)
+    local empty = 0
+    num_x = math.max(1, num_x + 2)
+    if num_x < 3 then
+        num_x = 3
+        empty = 2
+    end
     if #cls == 0 then
         return
     end
@@ -23,6 +28,15 @@ function cols.arrange(p)
     local spots = #cls
     if spots < minRows*num_x then
         spots = minRows*num_x
+    end
+
+    spots = spots + empty
+    rcls = {}
+    for i = 1,empty,1 do
+        rcls[i] = nil
+    end
+    for i=empty,spots,1 do
+        rcls[i]=cls[i-empty]
     end
 
     wa.x = wa.x + border_x0
@@ -42,7 +56,7 @@ function cols.arrange(p)
     local _perCol = spots / num_x
     local columns = (spots - 1) % num_x
     for i = 1,spots,1 do
-        local c = cls[i]
+        local c = rcls[i]
         geom.y = wa.y
         geom.width = width
         geom.height = bottomHeight
@@ -61,15 +75,18 @@ function cols.arrange(p)
         elseif i + num_x <= spots then
             geom.height = bottomHeight - topHeight
             geom.y = wa.y + topHeight
-            if spots > num_x then
-                geom.y = geom.y 
-            end
         end
 
         if i % num_x == 2 then
             geom.width = geom.width + extra*width
         end
 
+        if i == empty + 1 and empty ~= 0 then
+            geom.width = wa.width
+            geom.height = bottomHeight - topHeight
+            geom.x = wa.x
+            geom.y = wa.y + topHeight
+        end
 
         geom.height = geom.height - gap
         geom.width = geom.width - gap
@@ -80,11 +97,11 @@ function cols.arrange(p)
         end
 
         -- swap master
-        if i == 2 then
+        if empty == 0 and i== 2 then
             if c ~= nil then
-                c:geometry(cls[1]:geometry())
+                c:geometry(rcls[1]:geometry())
             end
-            cls[1]:geometry(geom)
+            rcls[1]:geometry(geom)
         end
 
         geom.x = geom.x + geom.width + gap

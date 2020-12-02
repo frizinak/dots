@@ -4,7 +4,7 @@ local layout = require("friz.layout")
 local wi = require("mywibox")
 local w = require("widgets")
 local soundcard = require("vars").soundcard
-local layouts = {layout.cols, layout.fair}
+local layouts = {layout.cols, layout.fair, awful.layout.suit.floating}
 
 function runPrompt(prompt, prefill, exec, isShell)
     local compl = nil

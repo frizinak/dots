@@ -13,7 +13,7 @@ require("mywibox")
 for s = 1, screen.count() do
     local tags = awful.tag({"1", "2", "3" , "4", "5", "6", "7", "8", "9", "0"},  s, friz.layout.cols)
     for a, t in pairs(tags) do
-        t.master_count = 0
+        t.master_count = 1
     end
 end
 

@@ -3,8 +3,6 @@ local awful = require("awful")
 local beautiful = require("beautiful")
 local widgets = require("friz.widgets")
 local load = {}
-local windowsUp = ""
-local gpuInUse = ""
 local soundcard = require("vars").soundcard
 
 function split(input)
@@ -136,75 +134,10 @@ local networkwidget = widgets.base(
     }
 )
 
-local windowsiconwidget = widgets.base(
-    {
-        cmd = "noop",
-        always = true,
-        timeout = 0.5,
-        settings = function()
-            widget:set_markup(
-                string.format(
-                    "%s %s",
-                    windowsUp,
-                    gpuInUse
-                )
-            )
-        end
-    }
-)
-
-widgets.base(
-    {
-        cmd = "cat /tmp/vm-win10-status",
-        timeout = 1,
-        settings = function()
-            local color = beautiful.widget.color_ok
-            if string.sub(output, 1, 4) == "pong" then
-                color = beautiful.widget.color_bad
-            elseif string.sub(output, 1, 2) == "Up" then
-                color = beautiful.widget.color_warn
-            end
-
-            windowsUp = string.format(
-                "<span color=\"%s\" size=\"x-small\"><b>💻</b></span>",
-                color
-            )
-        end
-    }
-)
-
-widgets.base(
-    {
-        cmd = "lsmod | grep -e nvidia_uvm -e nvida_drm | awk '{print $3}'",
-        timeout = 1,
-        settings = function()
-            local s = split(output)
-            local inUse = false
-            for _, n in pairs(s) do
-                if tonumber(n) > 4 then
-                    inUse = true
-                    break
-                end
-            end
-
-            local color = beautiful.widget.color_ok
-            if inUse then
-                color = beautiful.widget.color_bad
-            end
-
-            gpuInUse = string.format(
-                "<span color=\"%s\" size=\"x-small\"><b>⏿</b></span>",
-                color
-            )
-        end
-    }
-)
-
 return {
     clockwidget  = clockwidget,
     voltextwidget = voltextwidget,
     cputextwidget = cputextwidget,
     memtextwidget = memtextwidget,
     networkwidget = networkwidget,
-    windowsiconwidget = windowsiconwidget,
 }

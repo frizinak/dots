@@ -41,7 +41,6 @@ for s = 1, screen.count() do
     center_layout:add(w.memtextwidget)
     center_layout:add(w.networkwidget)
     center_layout:add(w.voltextwidget)
-    center_layout:add(w.windowsiconwidget)
 
     local right_layout = wibox.layout.fixed.horizontal()
     right_layout:add(pad_large)

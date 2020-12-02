@@ -23,48 +23,59 @@ fair.arrange = function(p)
     wa.height = wa.height - border_y0 - border_y1 + gap
     local cls = p.clients
 
-    if #cls > 0 then
-        local rows, cols = 1, 2
-        if #cls ~= 2 then
-            rows = math.ceil(math.sqrt(#cls))
-            cols = math.ceil(#cls / rows)
+    if #cls < 1 then
+        return
+    end
+
+    local rows, cols = 1, 2
+    if #cls ~= 2 then
+        rows = math.ceil(math.sqrt(#cls))
+        cols = math.ceil(#cls / rows)
+    end
+
+    for k, c in ipairs(cls) do
+        k = k - 1
+        local g = {}
+
+        local row, col = 0, 0
+        row = k % rows
+        col = math.floor(k / rows)
+
+        local lrows, lcols = rows, cols
+        if k >= rows * cols - rows then
+            lrows = #cls - (rows * cols - rows)
+            lcols = cols
         end
 
-        for k, c in ipairs(cls) do
-            k = k - 1
-            local g = {}
-
-            local row, col = 0, 0
-            row = k % rows
-            col = math.floor(k / rows)
-
-            local lrows, lcols = rows, cols
-            if k >= rows * cols - rows then
-                lrows = #cls - (rows * cols - rows)
-                lcols = cols
-            end
-
-            g.height = math.ceil(wa.height / lrows)
-            g.y = g.height * row
-            if row == lrows - 1 then
-                g.height = wa.height - math.ceil(wa.height / lrows) * row
-                g.y = wa.height - g.height
-            end
-
-            g.width = math.ceil(wa.width / lcols)
-            g.x = g.width * col
-            if col == lcols - 1 then
-                g.width = wa.width - math.ceil(wa.width / lcols) * col
-                g.x = wa.width - g.width
-            end
-
-            g.height = g.height - c.border_width * 2 - gap
-            g.width = g.width - c.border_width * 2 - gap
-            g.y = g.y + wa.y
-            g.x = g.x + wa.x
-
-            c:geometry(g)
+        if wa.width < wa.height then
+            t = row
+            row = col
+            col = t
+            t = lrows
+            lrows = lcols
+            lcols = t
         end
+
+        g.height = math.ceil(wa.height / lrows)
+        g.y = g.height * row
+        if row == lrows - 1 then
+            g.height = wa.height - math.ceil(wa.height / lrows) * row
+            g.y = wa.height - g.height
+        end
+
+        g.width = math.ceil(wa.width / lcols)
+        g.x = g.width * col
+        if col == lcols - 1 then
+            g.width = wa.width - math.ceil(wa.width / lcols) * col
+            g.x = wa.width - g.width
+        end
+
+        g.height = g.height - c.border_width * 2 - gap
+        g.width = g.width - c.border_width * 2 - gap
+        g.y = g.y + wa.y
+        g.x = g.x + wa.x
+
+        c:geometry(g)
     end
 end
 
