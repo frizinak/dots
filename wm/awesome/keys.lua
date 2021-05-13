@@ -68,9 +68,11 @@ local globalkeys = awful.util.table.join(
 
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 
-    awful.key({ modkey, }, "m", function() utils.drop("st -c ym -e ym", "center", "center", 0.7, 0.6, true) end),
+    awful.key({ modkey, }, "c", function() utils.drop("st -c bitstamp -e bitstamp", "center", "center", 0.8, 0.7, true) end),
+    awful.key({ modkey, }, "m", function() utils.drop("st -c ym -e tmux new-session \\; new-window homechat music remote \\; attach", "center", "center", 0.5, 0.6, true) end),
+    awful.key({ modkey, }, ";", function() utils.drop("st -c homechat -e tmux new-session \\; new-window homechat \\; attach", "center", "center", 0.35, 0.6, true) end),
     awful.key({ modkey, }, "space", function() utils.drop("qutebrowser", "center", "center", 0.9, 0.9, true) end),
-    awful.key({ modkey, }, "w", function() utils.drop("st -c wiki -e bash -c \"cd ~/vimwiki && nvim +'syntax on' +VimwikiIndex\"", "center", "center", 0.4, 0.4, true) end),
+    awful.key({ modkey, }, "w", function() utils.drop("st -c wiki -e bash -c \"cd ~/vimwiki && nvim +'syntax on' +VimwikiIndex\"", "center", "center", 0.2, 0.8, true) end),
     awful.key({ modkey, }, "b", function() utils.drop("st -c ebooks -e ebooks", "center", "center", 0.5, 0.7, true) end),
     awful.key({ modkey, }, "Return", function() awful.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
