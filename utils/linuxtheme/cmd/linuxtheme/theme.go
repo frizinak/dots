@@ -85,7 +85,7 @@ func main() {
 	log := log.New(os.Stdout, "", 0)
 	if flagExport {
 		if font == "" {
-			font = "monospace"
+			font = "monospacebmp"
 		}
 		if err := file.Export(os.Stdout, font, fontSize, colors); err != nil {
 			logerr.Fatal(err)
