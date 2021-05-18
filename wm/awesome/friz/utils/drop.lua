@@ -44,10 +44,17 @@ function toggle(prog, vert, horiz, width, height, sticky)
         return
     end
 
+    if prog == "" or prog == nil then
+        _toggle(nil, 0, 0, 0, 0, false)
+        return
+    end
+
     if dropdown[prog] then
         _toggle(dropdown[prog], vert, horiz, width, height)
         return
     end
+
+    toggle()
 
     local spawnw
     spawnw = function (c)
@@ -97,11 +104,7 @@ end
 
 function _toggle(c, vert, horiz, width, height)
     local scr = mouse.screen
-    if c == nil then
-        return
-    end
-
-    if c:isvisible() == false then
+    if c ~= nil and c:isvisible() == false then
         c.hidden = true
         resize(c, vert, horiz, width, height, scr)
         c:move_to_screen(scr)
@@ -117,6 +120,10 @@ function _toggle(c, vert, horiz, width, height)
             end
             other:tags(ctags)
         end
+    end
+
+    if c == nil then
+        return
     end
 
     if c.hidden then

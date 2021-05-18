@@ -34,13 +34,47 @@ function runDefaultPrompt()
     )
 end
 
-
 function updateVolume(value)
     return function ()
         awful.spawn.easy_async_with_shell(
             "pactl set-sink-volume '" .. soundcard .. "' " .. value,
             w.voltextwidget.update
         )
+    end
+end
+
+local lastScreen = 1
+local lastTag = 1
+
+function switchTo1(focusClass)
+    utils.drop()
+    local currentScreen = awful.screen.focused()
+    local currentTag = currentScreen.selected_tags[1]
+    local clients = screen[1].tags[1]:clients()
+    local goback = false
+
+    awful.screen.focus(screen[1])
+    screen[1].tags[1]:view_only()
+
+    for _, c in pairs(clients) do
+        if c.class == focusClass then
+            if client.focus == c then
+                goback = true
+                break
+            end
+            client.focus = c
+        end
+    end
+
+    if goback then
+        awful.screen.focus(screen[lastScreen])
+        screen[lastScreen].tags[lastTag]:view_only()
+        return
+    end
+
+    if currentTag.index ~= 1 or currentScreen.index ~= 1 then
+        lastTag = currentTag.index
+        lastScreen = currentScreen.index
     end
 end
 
@@ -69,11 +103,15 @@ local globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 
     awful.key({ modkey, }, "c", function() utils.drop("st -c bitstamp -e bitstamp", "center", "center", 0.8, 0.7, true) end),
-    awful.key({ modkey, }, "m", function() utils.drop("st -c ym -e tmux new-session \\; new-window homechat music remote \\; attach", "center", "center", 0.5, 0.6, true) end),
+    -- awful.key({ modkey, }, "m", function() utils.drop("st -c ym -e tmux new-session \\; new-window homechat music remote \\; attach", "center", "center", 0.5, 0.6, true) end),
+    awful.key({ modkey, }, "m", function() switchTo1("home-music") end),
+    awful.key({ modkey, }, "w", function() switchTo1("home-wiki") end),
+    awful.key({ modkey, }, "x", function() switchTo1("home-mutt") end),
+
     awful.key({ modkey, }, ";", function() utils.drop("st -c homechat -e tmux new-session \\; new-window homechat \\; attach", "center", "center", 0.35, 0.6, true) end),
     awful.key({ modkey, }, "space", function() utils.drop("qutebrowser", "center", "center", 0.9, 0.9, true) end),
-    awful.key({ modkey, }, "w", function() utils.drop("st -c wiki -e bash -c \"cd ~/vimwiki && nvim +'syntax on' +VimwikiIndex\"", "center", "center", 0.2, 0.8, true) end),
-    awful.key({ modkey, }, "b", function() utils.drop("st -c ebooks -e ebooks", "center", "center", 0.5, 0.7, true) end),
+    -- awful.key({ modkey, }, "w", function() utils.drop("st -c wiki -e bash -c \"cd ~/vimwiki && nvim +'syntax on' +VimwikiIndex\"", "center", "center", 0.2, 0.8, true) end),
+    -- awful.key({ modkey, }, "b", function() utils.drop("st -c ebooks -e ebooks", "center", "center", 0.5, 0.7, true) end),
     awful.key({ modkey, }, "Return", function() awful.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift" }, "q", awesome.quit),
