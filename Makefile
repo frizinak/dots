@@ -8,10 +8,10 @@ CONFIGS = $(patsubst $(CONFIG).def/%,$(CONFIG)/%,$(wildcard $(CONFIG).def/*))
 AWESOME=wm/awesome
 QUTE=browser/qutebrowser
 
-UNIFONTS = $(FONTS)/unifont_upper-12.1.03.ttf \
-	$(FONTS)/unifont_csur-12.1.03.ttf \
-	$(FONTS)/unifont-12.1.03.ttf \
-	$(FONTS)/unifont-12.1.03.bdf.gz \
+UNIFONTS = $(FONTS)/unifont_upper-13.0.06.ttf \
+	$(FONTS)/unifont_csur-13.0.06.ttf \
+	$(FONTS)/unifont-13.0.06.ttf \
+	$(FONTS)/unifont-13.0.06.bdf.gz \
 
 FONTSLIST = $(UNIFONTS)
 
@@ -296,7 +296,7 @@ $(SERVICES)/friz-load.service: $(SERVICES)/friz-load.service.def $(CONFIG)/netif
 	mv "$@.tmp" "$@"
 
 $(UNIFONTS): | $(FONTS)
-	curl -Ss "http://unifoundry.com/pub/unifont/unifont-12.1.03/font-builds/$$(basename "$@")" > "$@.tmp"
+	curl -Ss "http://unifoundry.com/pub/unifont/unifont-13.0.06/font-builds/$$(basename "$@")" > "$@.tmp"
 	mv "$@.tmp" "$@"
 
 misc/.xinitrc: misc/.xinitrc.def $(CONFIG)/xinit $(CONFIG)/goclip

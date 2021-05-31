@@ -1,60 +1,127 @@
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
 <fontconfig>
-    <match target="scan">
-        <test name="family" compare="eq">
-            <string>Tamzen</string>
-        </test>
-        <test name="outline" compare="eq">
-            <bool>false</bool>
-        </test>
-        <edit name="family" mode="assign_replace" binding="strong"><string>tamzen bmp</string></edit>
-    </match>
-    <alias>
-        <family>serif</family>
-        <prefer><family>mymonospace</family></prefer>
-    </alias>
-    <alias>
-        <family>sans-serif</family>
-        <prefer><family>mymonospace</family></prefer>
-    </alias>
+    <!-- if 9px suffix set size to 6.75pt                                  -->
     <match target="pattern">
-        <test qual="any" name="family" compare="eq"><string>monospace</string></test>
-        <edit name="family" mode="assign_replace"><string>mymonospace</string></edit>
+        <test name="family" compare="contains"><string>9px</string></test>
+        <edit name="size" mode="assign_replace"><double>6.75</double></edit>
+    </match>
+    <!-- if 12px suffix set size to 9pt                                    -->
+    <match target="pattern">
+        <test name="family" compare="contains"><string>12px</string></test>
+        <edit name="size" mode="assign_replace"><double>9</double></edit>
+    </match>
+    <!-- if 13px suffix set size to 9.75pt                                 -->
+    <match target="pattern">
+        <test name="family" compare="contains"><string>13px</string></test>
+        <edit name="size" mode="assign_replace"><double>9.75</double></edit>
+    </match>
+    <!-- if 14px suffix set size to 10.5                                   -->
+    <match target="pattern">
+        <test name="family" compare="contains"><string>14px</string></test>
+        <edit name="size" mode="assign_replace"><double>10.5</double></edit>
+    </match>
+    <!-- if 15px suffix set size to 11.25pt                                -->
+    <match target="pattern">
+        <test name="family" compare="contains"><string>15px</string></test>
+        <edit name="size" mode="assign_replace"><double>11.25</double></edit>
+    </match>
+    <!-- if 20px suffix set size to 15pt                                   -->
+    <match target="pattern">
+        <test name="family" compare="contains"><string>20px</string></test>
+        <edit name="size" mode="assign_replace"><double>15</double></edit>
+    </match>
+
+    <!-- always append 9pt size (in case size is missing, tests below will  -->
+    <!-- always fail                                                        -->
+    <!--<match target="pattern">-->
+        <!--<test name="size" ignore-blanks="false" compare="eq"><double>0</double></test>-->
+        <!--<edit name="size" mode="assign_replace"><double>9</double></edit>-->
+    <!--</match>-->
+
+    <!-- if family contains bmp set new variable 'bmp' to true              -->
+    <match target="pattern">
+        <edit name="bmp" mode="assign_replace"><bool>false</bool></edit>
     </match>
     <match target="pattern">
-        <test qual="any" name="family" compare="eq"><string>monospacebmp</string></test>
-        <edit name="family" mode="assign_replace" binding="strong"><string>mymonospace</string></edit>
-        <edit name="fontformat" mode="prepend_first" binding="strong"><string>bdf</string></edit>
-        <edit name="fontformat" mode="prepend_first" binding="strong"><string>pcf</string></edit>
+        <test name="family" compare="contains"><string>bmp</string></test>
+        <edit name="bmp" mode="assign_replace"><bool>true</bool></edit>
     </match>
+
+    <!-- replace requested family with generic monospace                    -->
+    <!-- only relevant if a specific font that exists is requested          -->
     <match target="pattern">
-        <test qual="any" name="family" compare="eq"><string>monospacettf</string></test>
-        <edit name="family" mode="assign_replace" binding="strong"><string>mymonospace</string></edit>
-        <edit name="fontformat" mode="assign_replace" binding="strong"><string>truetype</string></edit>
+        <edit name="family" mode="assign_replace"><string>monospace</string></edit>
     </match>
+
     <match target="font">
-        <edit name="hinting" mode="assign"><bool>false</bool></edit>
-        <edit name="autohint" mode="assign"><bool>false</bool></edit>
-        <edit name="hintstyle" mode="assign"><const>hintnone</const></edit>
+        <edit name="antialias" mode="assign_replace"><bool>false</bool></edit>
+        <edit name="outline" mode="assign_replace"><bool>false</bool></edit>
+        <edit name="hinting" mode="assign_replace"><bool>false</bool></edit>
+        <edit name="autohint" mode="assign_replace"><bool>false</bool></edit>
+        <edit name="hintstyle" mode="assign_replace"><const>hintnone</const></edit>
+        <edit name="embolden" mode="assign_replace"><bool>false</bool></edit>
+        <edit name="slant" mode="assign_replace"><int>0</int></edit>
     </match>
-    <alias>
-        <family>mymonospace</family>
-        <prefer>
-            <family>Tamzen</family>
-            <family>tamzen bmp</family>
-            <family>saxMono</family>
-            <family>Pixel UniCode</family>
-            <family>basis33</family>
-            <family>saxmono</family>
-            <family>Source Code Variable</family>
-            <family>lekton</family>
-            <family>gohufont</family>
-            <family>Unifont</family>
-            <family>Unifont Upper</family>
-            <family>Unifont CSUR</family>
-            <family>GNU Unifont</family>
-        </prefer>
-    </alias>
+
+    <match target="pattern">
+        <edit name="family" mode="prepend_first"><string>Pixel UniCode</string></edit>
+        <edit name="family" mode="prepend_first"><string>Unifont CSUR</string></edit>
+        <edit name="family" mode="prepend_first"><string>Unifont Upper</string></edit>
+        <edit name="family" mode="prepend_first"><string>Unifont</string></edit>
+    </match>
+
+    <!-- change fonts depending on requested pixelsize                      -->
+    <match target="pattern">
+        <test name="size" compare="less_eq"><double>6.75</double></test>
+
+        <edit name="pixelsize" mode="assign_replace"><double>9</double></edit>
+
+        <edit name="family" mode="prepend_first"><string>tamzen-9px.ttf</string></edit>
+    </match>
+    <match target="pattern">
+        <test name="size" compare="more"><double>6.75</double></test>
+        <test name="size" compare="less_eq"><double>9</double></test>
+
+        <edit name="pixelsize" mode="assign_replace"><double>12</double></edit>
+
+        <edit name="family" mode="prepend_first"><string>tamzen-12px.ttf</string></edit>
+    </match>
+    <match target="pattern">
+        <test name="size" compare="more"><double>9</double></test>
+        <test name="size" compare="less_eq"><double>9.75</double></test>
+
+        <edit name="pixelsize" mode="assign_replace"><double>13</double></edit>
+
+        <edit name="family" mode="prepend_first"><string>tamzen-13px.ttf</string></edit>
+    </match>
+    <match target="pattern">
+        <test name="size" compare="more"><double>9.75</double></test>
+        <test name="size" compare="less_eq"><double>10.5</double></test>
+
+        <edit name="pixelsize" mode="assign_replace"><double>14</double></edit>
+
+        <edit name="family" mode="prepend_first"><string>tamzen-14px.ttf</string></edit>
+    </match>
+    <match target="pattern">
+        <test name="size" compare="more"><double>10.5</double></test>
+        <test name="size" compare="less_eq"><double>11.25</double></test>
+
+        <edit name="pixelsize" mode="assign_replace"><double>15</double></edit>
+
+        <edit name="family" mode="prepend_first"><string>tamzen-15px.ttf</string></edit>
+    </match>
+    <match target="pattern">
+        <test name="size" compare="more"><double>11.25</double></test>
+
+        <edit name="pixelsize" mode="assign_replace"><double>20</double></edit>
+
+        <edit name="family" mode="prepend_first"><string>tamzen-20px.ttf</string></edit>
+    </match>
+
+    <match target="pattern">
+        <test name="bmp" compare="eq"><bool>true</bool></test>
+        <edit name="family" mode="prepend_first"><string>Misc Tamzen</string></edit>
+    </match>
 </fontconfig>
 

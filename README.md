@@ -48,7 +48,6 @@ $ make install
 About fonts:
 - monospace everything
 - monospacebmp force bitmap version (st)
-- monospacettf force ttf version (awesome / pango)
 
 - change font of st: configs/st-config.h
 - change font of awesome: configs/awesome-vars.lua

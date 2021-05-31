@@ -5,7 +5,7 @@ local friz = require("friz")
 beautiful.init(require("theme"))
 modkey = "Mod4"
 altkey = "Mod1"
-terminal = "st -e tm"
+terminal = "st -e /usr/bin/nvim +T"
 
 require("notifications")
 local wi = require("mywibox")
@@ -37,6 +37,8 @@ function defRule(c)
     })
 end
 
+homeWidth = -300
+
 awful.rules.rules = {
     {
         rule = {},
@@ -58,7 +60,7 @@ awful.rules.rules = {
             no_border_focus = true,
             tag = screen[1].tags[1],
             callback = function(c)
-                local width = 1400
+                local width = 1400 + homeWidth
                 local height = 600
                 local x = 150
                 local y = screen[c.screen].geometry.height - 780
@@ -77,7 +79,7 @@ awful.rules.rules = {
             callback = function(c)
                 local width = 670
                 local height = 600
-                local x = 1640
+                local x = 1640 + homeWidth
                 local y = screen[c.screen].geometry.height - 780
                 c:geometry({x = x, y = y, width = width, height = height})
                 defRule(c)
@@ -110,7 +112,7 @@ awful.rules.rules = {
             tag = screen[1].tags[1],
             callback = function(c)
                 local width = 280
-                local height = 38
+                local height = 45
                 local x = 681
                 local y = screen[c.screen].geometry.height - 1300
                 c:geometry({x = x, y = y, width = width, height = height})
@@ -127,9 +129,9 @@ awful.rules.rules = {
             tag = screen[1].tags[1],
             callback = function(c)
                 local width = 280
-                local height = 58
+                local height = 51
                 local x = 681
-                local y = screen[c.screen].geometry.height - 1172
+                local y = screen[c.screen].geometry.height - 1165
                 c:geometry({x = x, y = y, width = width, height = height})
                 defRule(c)
             end
@@ -160,7 +162,7 @@ awful.rules.rules = {
             no_border_focus = true,
             tag = screen[1].tags[1],
             callback = function(c)
-                local width = 1260
+                local width = 1260 + homeWidth
                 local height = 300
                 local x = 1050
                 local y = screen[c.screen].geometry.height - 1300
@@ -177,7 +179,7 @@ awful.rules.rules = {
             no_border_focus = true,
             tag = screen[1].tags[1],
             callback = function(c)
-                local width = 2160
+                local width = 2160 + homeWidth
                 local height = 40
                 local x = 150
                 local y = screen[c.screen].geometry.height - 910
@@ -194,7 +196,7 @@ awful.rules.rules = {
             no_border_focus = true,
             tag = screen[1].tags[1],
             callback = function(c)
-                local width = 2160
+                local width = 2160 + homeWidth
                 local height = 100
                 local x = 150
                 local y = screen[c.screen].geometry.height - 1490

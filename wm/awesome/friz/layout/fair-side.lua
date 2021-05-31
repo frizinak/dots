@@ -18,7 +18,7 @@ fair.arrange = function(p)
     local border_y1 = 120
 
     local wa = p.workarea
-    local width = 1400
+    local width = 1470 - homeWidth
     wa.x = wa.x + wa.width - width
     wa.width = width
 
