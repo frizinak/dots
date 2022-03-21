@@ -54,7 +54,7 @@ CONTRIBS_UPDATE = $(patsubst $(CONTRIB)/%,$(CONTRIB)/%-update,$(wildcard $(CONTR
 CONTRIBS_UPDATE += $(patsubst $(FONTS)/%,$(FONTS)/%-update,$(wildcard $(FONTS)/*))
 BINS = $(wildcard $(BIN)/*)
 
-ALL = config st awesome qutebrowser fonts $(MISC)
+ALL = config st dvtm awesome qutebrowser fonts $(MISC)
 .PHONY: all
 all: $(ALL)
 
@@ -63,6 +63,9 @@ config:  $(CONFIGS)
 
 .PHONY: st
 st: $(BIN)/st
+
+.PHONY: dvtm
+dvtm: $(BIN)/dvtm
 
 .PHONY: awesome
 awesome: $(AWESOME)/vars.lua $(AWESOME)/theme.lua $(SERVICES)/friz-load.service\
@@ -252,6 +255,9 @@ $(BIN)/friz-theme: utils/linuxtheme $(shell find utils/linuxtheme -type f -name 
 $(BIN)/st: $(CONTRIB)/st/st
 	cp -f "$<" "$@"
 
+$(BIN)/dvtm: $(CONTRIB)/dvtm/dvtm
+	cp -f "$<" "$@"
+
 $(BIN)/goclip: $(CONTRIB)/goclip
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
 
@@ -264,11 +270,20 @@ $(CONTRIB)/st/st: themes/active $(ACTIVETHEME) $(CONTRIB)/st $(CONFIG)/st-config
 	make -C $(CONTRIB)/st
 	touch $(CONTRIB)/st/st
 
+$(CONTRIB)/dvtm/dvtm: $(CONTRIB)/dvtm $(CONFIG)/dvtm-config.h
+	cp $(CONFIG)/dvtm-config.h $(CONTRIB)/dvtm/config.h
+	make -C $(CONTRIB)/dvtm
+	touch $(CONTRIB)/dvtm/dvtm
+
 $(CONTRIB)/layout-machi: | $(CONTRIB)
 	git clone https://github.com/frizinak/layout-machi "$@"
 
 $(CONTRIB)/st: | $(CONTRIB)
 	git clone git://git.suckless.org/st "$@"
+	git apply --directory="$@" ./patches/st/remove-fc-attr-fallback.patch
+
+$(CONTRIB)/dvtm: | $(CONTRIB)
+	git clone https://github.com/martanne/dvtm "$@"
 
 $(CONTRIB)/goclip: | $(CONTRIB)
 	git clone https://github.com/frizinak/goclip "$@"
