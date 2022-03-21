@@ -18,14 +18,17 @@ end
 local clockwidget = wibox.widget.textclock("%d-%m %H:%M:%S", 0.5)
 local voltextwidget = widgets.base(
     {
-        cmd = "pactl list sinks | grep -A20 \"Name: " .. soundcard .. "$\" | " ..
-                "tr '\\n' ' ' | grep -v 'Mute: yes.*' | " ..
-                "grep -Eo 'Volume:.*:' | grep -Eo '[0-9\\.]+%' | " ..
+        -- cmd = "pactl list sinks | grep -A20 \"State: RUNNING$\" | " ..
+        --         "tr '\\n' ' ' | grep -v 'Mute: yes.*' | " ..
+        --         "grep -Eo 'Volume:.*:' | grep -Eo '[0-9\\.]+%' | " ..
+        --         "head -n1 | cut -d% -f1",
+        cmd = "pactl get-sink-volume " .. soundcard .. " | " ..
+                "grep -Eo '[0-9\\.]+%' | " ..
                 "head -n1 | cut -d% -f1",
         timeout = 5,
         settings = function()
             if output == "" then
-                output = 0
+                output = "?"
             end
             output = math.floor(output)
             if output > 100 then

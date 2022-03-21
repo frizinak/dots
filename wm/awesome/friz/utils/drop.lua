@@ -5,26 +5,18 @@ local dropdown = {}
 local busy = false
 local attach_signal = client.connect_signal or client.add_signal
 local detach_signal = client.disconnect_signal or client.remove_signal
+local machi = require("layout-machi")
+local gtimer = require("gears.timer")
+local once = require("friz.utils.signal").connect_once
 
 awful.client.property.persist("scratchdrop", "string")
-awful.client.property.persist("scratchdrop:vert", "string")
-awful.client.property.persist("scratchdrop:horiz", "string")
-awful.client.property.persist("scratchdrop:width", "string")
-awful.client.property.persist("scratchdrop:height", "string")
-
 attach_signal(
     "manage",
     function (c)
         local p = awful.client.property.get(c, "scratchdrop")
         if p ~= "" and p ~= nil then
             dropdown[p] = c
-            _toggle(
-                c,
-                awful.client.property.get(c, "scratchdrop:vert"),
-                awful.client.property.get(c, "scratchdrop:horiz"),
-                awful.client.property.get(c, "scratchdrop:width"),
-                awful.client.property.get(c, "scratchdrop:height")
-            )
+            _toggle(c, false)
         end
     end
 )
@@ -39,7 +31,7 @@ attach_signal(
     end
 )
 
-function toggle(prog, vert, horiz, width, height, sticky)
+function toggle(prog)
     if busy then
         return
     end
@@ -50,7 +42,7 @@ function toggle(prog, vert, horiz, width, height, sticky)
     end
 
     if dropdown[prog] then
-        _toggle(dropdown[prog], vert, horiz, width, height)
+        _toggle(dropdown[prog])
         return
     end
 
@@ -58,23 +50,17 @@ function toggle(prog, vert, horiz, width, height, sticky)
 
     local spawnw
     spawnw = function (c)
-        detach_signal("manage", spawnw)
         busy = false
         dropdown[prog] = c
         awful.client.property.set(c, "scratchdrop", prog)
-        awful.client.property.set(c, "scratchdrop:vert", vert)
-        awful.client.property.set(c, "scratchdrop:horiz", horiz)
-        awful.client.property.set(c, "scratchdrop:width", width)
-        awful.client.property.set(c, "scratchdrop:height", height)
 
-        c.floating = true
-        resize(c, vert, horiz, width, height)
-        if sticky then c.sticky = true end
-        if c.titlebar then awful.titlebar.remove(c) end
         client.focus = c
         c:raise()
+        once(screen, "arrange", function()
+            machi.switcher.start(c).master_add()
+        end)
     end
-    attach_signal("manage", spawnw)
+    once(client, "manage", spawnw)
     busy = true
     awful.spawn.with_shell(prog, false)
 end
@@ -84,7 +70,7 @@ function resize(c, vert, horiz, width, height)
     horiz= horiz or "center"
     width= width or 1
     height = height or 0.25
-    local scr = mouse.screen
+    local scr = c and c.screen or awful.screen.focused()
     local screengeom = screen[scr].workarea
 
     if width <= 1 then width = screengeom.width * width end
@@ -102,13 +88,11 @@ function resize(c, vert, horiz, width, height)
     c.above = true
 end
 
-function _toggle(c, vert, horiz, width, height)
-    local scr = mouse.screen
-    if c ~= nil and c:isvisible() == false then
+function _toggle(c, state)
+    local scr = c and c.screen or awful.screen.focused()
+    if c ~= nil and not c:isvisible() then
         c.hidden = true
-        resize(c, vert, horiz, width, height, scr)
         c:move_to_screen(scr)
-        c:move_to_tag(scr.selected_tag)
     end
 
     for _prog, other in pairs(dropdown) do
@@ -126,9 +110,23 @@ function _toggle(c, vert, horiz, width, height)
         return
     end
 
-    if c.hidden then
+    local hidden = (c.hidden and state ~= false) or state == true
+
+    if hidden then
+        once(screen, "arrange", function()
+            machi.switcher.start(c).master_add()
+        end)
         c.hidden = false
+        c:move_to_tag(scr.selected_tag)
         client.focus = c
+        c:raise()
+    elseif client.focus ~= c and state ~= false then
+        once(screen, "arrange", function()
+            machi.switcher.start(c).master_add()
+        end)
+        c:move_to_tag(scr.selected_tag)
+        client.focus = c
+        c:raise()
     else
         c.hidden = true
         local ctags = c:tags()

@@ -5,6 +5,7 @@ function cols.arrange(p)
     local gap = tonumber(beautiful.useless_gap_width) or 0
     if gap < 0 then gap = 0 end
 
+    local titlebar = beautiful.titlebar_size or 0
     local border_x0 = beautiful.border_x0 or 0
     local border_x1 = beautiful.border_x1 or 0
     local border_y0 = beautiful.border_y0 or 0
@@ -14,6 +15,7 @@ function cols.arrange(p)
     local cls = p.clients
     local num_x = screen[p.screen].selected_tag.master_count
     local mwf = screen[p.screen].selected_tag.master_width_factor
+    local scrgeom = screen[p.screen].geometry
     local empty = 0
     num_x = math.max(1, num_x + 2)
     if num_x < 3 then
@@ -42,15 +44,21 @@ function cols.arrange(p)
     wa.x = wa.x + border_x0
     wa.y = wa.y + border_y0
     wa.width = wa.width - border_x0 - border_x1 + gap
+    local rh = wa.height
     wa.height = wa.height - border_y0 - border_y1 + gap
 
-    local extra = math.floor((mwf * mwf * mwf) / 0.05)
-    local width = wa.width / math.min(num_x + extra, spots + extra)
+    local mainw = (mwf/0.5)*scrgeom.width/1.5 + gap
+    if mainw <= 100 then
+        mainw = 100
+    end
+
+    width = (wa.width - mainw)/(math.min(num_x, spots)-1)
+    local extra = (mainw / width) - 1
     if spots == 1 then
         width = wa.width
     end
 
-    local topHeight = wa.height / 4
+    local topHeight = scrgeom.height - scrgeom.height/1.5 - border_y0 - border_y1 - titlebar
     local bottomHeight = wa.height
     local geom = {x = wa.x, y = wa.y, width = 0, height = 0}
     local _perCol = spots / num_x

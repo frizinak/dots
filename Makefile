@@ -65,10 +65,11 @@ config:  $(CONFIGS)
 st: $(BIN)/st
 
 .PHONY: awesome
-awesome: $(AWESOME)/vars.lua $(AWESOME)/theme.lua $(SERVICES)/friz-load.service
+awesome: $(AWESOME)/vars.lua $(AWESOME)/theme.lua $(SERVICES)/friz-load.service\
+	$(AWESOME)/layout-machi
 
 .PHONY: qutebrowser
-qutebrowser: $(QUTE)/config.py 
+qutebrowser: $(QUTE)/config.py
 
 $(foreach i,$(FONT_REPOS),$(eval $(call FONT_REPO_TARGET,$(i))))
 $(eval $(call DAFONT_TARGET,pixel_unicode,Pixel-UniCode.ttf))
@@ -263,6 +264,9 @@ $(CONTRIB)/st/st: themes/active $(ACTIVETHEME) $(CONTRIB)/st $(CONFIG)/st-config
 	make -C $(CONTRIB)/st
 	touch $(CONTRIB)/st/st
 
+$(CONTRIB)/layout-machi: | $(CONTRIB)
+	git clone https://github.com/frizinak/layout-machi "$@"
+
 $(CONTRIB)/st: | $(CONTRIB)
 	git clone git://git.suckless.org/st "$@"
 
@@ -282,6 +286,10 @@ $(AWESOME)/vars.lua: $(CONFIG)/awesome-vars.lua
 $(AWESOME)/theme.lua: themes/active $(AWESOME)/theme.def.lua $(ACTIVETHEME) | $(BIN)/friz-theme
 	cp $(AWESOME)/theme.def.lua "$@"
 	$(BIN)/friz-theme -awesome "$@" "$<"
+
+$(AWESOME)/layout-machi: $(CONTRIB)/layout-machi
+	@rm -rf "$@"
+	cp -r "$<" "$@"
 
 themes/active: | themes
 	ln -sf default themes/active
