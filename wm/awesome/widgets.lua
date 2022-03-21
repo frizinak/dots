@@ -2,6 +2,8 @@ local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
 local widgets = require("friz.widgets")
+local timer = require("gears").timer
+local spawn = require("awful").spawn.with_line_callback
 local load = {}
 local soundcard = require("vars").soundcard
 
@@ -35,18 +37,27 @@ local voltextwidget = widgets.base(
     }
 )
 
-widgets.base(
-    {
-        cmd = "cat /tmp/load.log",
-        timeout = 0.5,
-        settings = function ()
-            local cur = split(output)
-            if #cur >= 7 then
-                load = cur
+
+timer.start_new(0.5, function()
+    collectgarbage("step", 1024)
+    return true
+end)
+
+timer.start_new(0.5, function()
+    local d = {}
+    spawn(
+        "cat /tmp/load.log",
+        {
+            stdout = function (out) table.insert(d, out) end,
+            output_done = function ()
+                if #d >= 7 then
+                    load = d
+                end
             end
-        end
-    }
-)
+        }
+    )
+    return true
+end)
 
 local cputextwidget = widgets.base(
     {

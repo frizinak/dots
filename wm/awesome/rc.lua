@@ -129,9 +129,9 @@ awful.rules.rules = {
             tag = screen[1].tags[1],
             callback = function(c)
                 local width = 280
-                local height = 51
+                local height = 176
                 local x = 681
-                local y = screen[c.screen].geometry.height - 1165
+                local y = screen[c.screen].geometry.height - 1300 --1165
                 c:geometry({x = x, y = y, width = width, height = height})
                 defRule(c)
             end
@@ -146,9 +146,9 @@ awful.rules.rules = {
             tag = screen[1].tags[1],
             callback = function(c)
                 local width = 280
-                local height = 24
+                local height = 34
                 local x = 681
-                local y = screen[c.screen].geometry.height - 1024
+                local y = screen[c.screen].geometry.height - 1034
                 c:geometry({x = x, y = y, width = width, height = height})
                 defRule(c)
             end
