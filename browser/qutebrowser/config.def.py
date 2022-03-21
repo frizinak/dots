@@ -48,7 +48,7 @@ config.set('colors.downloads.stop.bg', colorGood)
 config.set('colors.downloads.stop.fg', colorBg)
 
 config.set('hints.border', '1px solid ' + colorAccent)
-config.set('colors.hints.bg', colorAccentDark)
+config.set('colors.hints.bg', colorBg)
 config.set('colors.hints.fg', colorFg)
 config.set('colors.hints.match.fg', colorFg)
 
