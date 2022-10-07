@@ -261,9 +261,6 @@ $(BIN)/dvtm: $(CONTRIB)/dvtm/dvtm
 $(BIN)/goclip: $(CONTRIB)/goclip
 	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
 
-$(BIN)/fzf: $(CONTRIB)/fzf
-	sh -c 'cd "$<" && go build -o "$(PWD)/$@" ./'
-
 $(CONTRIB)/st/st: themes/active $(ACTIVETHEME) $(CONTRIB)/st $(CONFIG)/st-config.h | $(BIN)/friz-theme
 	cp $(CONFIG)/st-config.h $(CONTRIB)/st/config.h
 	$(BIN)/friz-theme -st $(CONTRIB)/st -st-noinstall -st-nofont "$<"
@@ -287,9 +284,6 @@ $(CONTRIB)/dvtm: | $(CONTRIB)
 
 $(CONTRIB)/goclip: | $(CONTRIB)
 	git clone https://github.com/frizinak/goclip "$@"
-
-$(CONTRIB)/fzf: | $(CONTRIB)
-	git clone https://github.com/junegunn/fzf "$@"
 
 $(QUTE)/config.py: $(QUTE)/config.def.py themes/active $(ACTIVETHEME) | $(BIN)/friz-theme
 	cp "$<" "$@"
@@ -326,7 +320,7 @@ misc/.xinitrc: misc/.xinitrc.def $(CONFIG)/xinit $(CONFIG)/goclip
 	sed '/^{custom}$$/,$$d' "$<" > "$@.tmp"
 	cat $(CONFIG)/xinit >> "$@.tmp"
 	@if grep -q '^1' $(CONFIG)/goclip; then \
-		$(MAKE) $(BIN)/goclip $(BIN)/fzf; \
+		$(MAKE) $(BIN)/goclip; \
 		echo 'goclip &' >> "$@.tmp"; \
 	fi
 	sed '1,/^{custom}$$/d' "$<" >> "$@.tmp"
